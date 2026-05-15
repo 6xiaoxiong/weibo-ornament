@@ -9,6 +9,9 @@
 <meta name="apple-mobile-web-app-title" content="微博记账APP">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link rel="manifest" href="manifest.json">
 <style>
 :root {
@@ -293,12 +296,17 @@ textarea { resize: none; }
       <span class="si-label">默认每盒价格</span>
       <span><span class="si-value" id="set-defaultPrice">17元</span> <span class="si-arrow">›</span></span>
     </div>
-    <div class="settings-item" onclick="exportData()">
-      <span class="si-label">导出数据 (Excel)</span>
+    <div class="settings-item" onclick="exportJSON()">
+      <span class="si-label">📤 导出完整数据 (JSON)</span>
       <span class="si-arrow">›</span>
     </div>
+    <div class="settings-item" onclick="document.getElementById('import-file-input').click()">
+      <span class="si-label">📥 导入数据 (JSON文件)</span>
+      <span class="si-arrow">›</span>
+    </div>
+    <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importFromFile(event)">
     <div class="settings-item" onclick="openModal('modal-import')">
-      <span class="si-label">备份 / 恢复数据</span>
+      <span class="si-label">备份 / 粘贴导入</span>
       <span class="si-arrow">›</span>
     </div>
     <div class="settings-item" onclick="confirmClear()" style="color:var(--red);">
@@ -1059,7 +1067,34 @@ function doConfirm() {
   // handled inline
 }
 
-// ========== EXPORT ==========
+// ========== EXPORT / IMPORT ==========
+function exportJSON() {
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = '微博记账APP-备份.json'; a.click();
+  URL.revokeObjectURL(a.href);
+  toast('数据已导出');
+}
+
+function importFromFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.series) throw new Error('Invalid');
+      state = data;
+      saveData();
+      toast('数据已恢复');
+      nav('home');
+    } catch(e) { toast('文件格式错误'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
 function exportData() {
   if (state.series.length === 0) { toast('暂无数据可导出'); return; }
   const headers = ['系列名称','抽了多少盒','每盒价格','总投入','超神','隐藏','稀有','普通','剩余库存'];
