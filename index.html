@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="微博记账APP">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.json">
 <style>
 :root {
   --pink: #d484a9;
@@ -436,6 +437,46 @@ textarea { resize: none; }
   </div>
 </div>
 
+<!-- MODAL: edit series -->
+<div class="modal-overlay" id="modal-edit" onclick="if(event.target===this)closeModal('modal-edit')">
+  <div class="modal">
+    <h3>编辑系列</h3>
+    <div class="form-group">
+      <label>系列名称</label>
+      <input type="text" id="edit-name" placeholder="如：KT系列、huhu小兔">
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0;">
+        <label style="font-size:12px;">每盒价格 (元)</label>
+        <input type="number" id="edit-boxPrice" min="0" step="0.1" style="font-size:13px;">
+      </div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px;">各等级库存</div>
+      <div class="draw-tier-row">
+        <div class="dtl-label"><span class="tier-badge tier-red">超神款</span></div>
+        <input type="number" id="edit-legendary" value="0" min="0" style="width:70px;padding:6px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;text-align:center;outline:none;">
+      </div>
+      <div class="draw-tier-row">
+        <div class="dtl-label"><span class="tier-badge tier-blue">隐藏款</span></div>
+        <input type="number" id="edit-hidden" value="0" min="0" style="width:70px;padding:6px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;text-align:center;outline:none;">
+      </div>
+      <div class="draw-tier-row">
+        <div class="dtl-label"><span class="tier-badge tier-amber">稀有款</span></div>
+        <input type="number" id="edit-rare" value="0" min="0" style="width:70px;padding:6px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;text-align:center;outline:none;">
+      </div>
+      <div class="draw-tier-row">
+        <div class="dtl-label"><span class="tier-badge tier-green">普通款</span></div>
+        <input type="number" id="edit-normal" value="0" min="0" style="width:70px;padding:6px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;text-align:center;outline:none;">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit')">取消</button>
+      <button class="btn btn-primary" onclick="saveEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <button class="nav-item active" data-page="home" onclick="nav('home')">
@@ -765,8 +806,34 @@ function showDetail(id) {
 }
 
 function editCurrentSeries() {
-  // TODO: edit series
-  toast('编辑功能开发中');
+  const s = state.series.find(x => x.id === detailSeriesId);
+  if (!s) return;
+  document.getElementById('edit-name').value = s.name;
+  document.getElementById('edit-boxPrice').value = s.boxPrice;
+  document.getElementById('edit-legendary').value = s.tiers.legendary;
+  document.getElementById('edit-hidden').value = s.tiers.hidden;
+  document.getElementById('edit-rare').value = s.tiers.rare;
+  document.getElementById('edit-normal').value = s.tiers.normal;
+  openModal('modal-edit');
+}
+
+function saveEdit() {
+  const s = state.series.find(x => x.id === detailSeriesId);
+  if (!s) return;
+  const name = document.getElementById('edit-name').value.trim();
+  if (!name) { toast('请输入系列名称'); return; }
+  s.name = name;
+  s.boxPrice = parseFloat(document.getElementById('edit-boxPrice').value) || s.boxPrice;
+  s.tiers.legendary = parseInt(document.getElementById('edit-legendary').value) || 0;
+  s.tiers.hidden = parseInt(document.getElementById('edit-hidden').value) || 0;
+  s.tiers.rare = parseInt(document.getElementById('edit-rare').value) || 0;
+  s.tiers.normal = parseInt(document.getElementById('edit-normal').value) || 0;
+  s.updatedAt = new Date().toISOString();
+  saveData();
+  closeModal('modal-edit');
+  showDetail(detailSeriesId);
+  nav('home');
+  toast('已保存');
 }
 
 function sellFromDetail() {
