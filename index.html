@@ -3,8 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>微博装扮记账</title>
-<link rel="icon" href="favicon.png" type="image/png">
+<title>微博记账APP</title>
+<link rel="icon" href="apple-touch-icon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="微博记账APP">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
 :root {
   --pink: #d484a9;
@@ -27,12 +31,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 input, select, textarea, button { font-family: inherit; font-size: inherit; }
 textarea { resize: none; }
 
+/* top bar */
 .topbar { background: var(--card); padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
 .topbar::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: repeating-linear-gradient(90deg, var(--pink-mid) 0, var(--pink-mid) 8px, transparent 8px, transparent 12px); }
 .topbar h1 { font-size: 16px; font-weight: 600; color: var(--text); }
 .topbar .back { background: none; border: none; color: var(--pink); font-size: 14px; cursor: pointer; padding: 4px 8px; }
 .topbar .actions { display: flex; gap: 8px; }
 
+/* stat cards */
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; }
 .stat-card { background: var(--card); border-radius: 16px; padding: 14px; border: 1px solid var(--border); box-shadow: 0 2px 12px rgba(212,132,169,0.06); }
 .stat-card .label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
@@ -43,16 +49,19 @@ textarea { resize: none; }
 .stat-card.wide { grid-column: span 2; }
 .stat-card .tiers { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
 
+/* tier badge */
 .tier-badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; display: inline-block; }
 .tier-green { background: #eaf3ee; color: var(--green); }
 .tier-amber { background: #faf2e0; color: var(--amber); }
 .tier-blue { background: #e8f0f8; color: var(--blue); }
 .tier-red { background: #fce8ec; color: var(--red); }
 
+/* section */
 .section { padding: 12px; }
 .section-title { font-size: 13px; color: var(--text2); margin-bottom: 10px; font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
 .section-title .sub { font-size: 12px; color: var(--text3); font-weight: 400; }
 
+/* series card */
 .series-card { background: var(--card); border-radius: 16px; padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(212,132,169,0.04); cursor: pointer; transition: all 0.15s; }
 .series-card:active { background: var(--pink-pale); }
 .series-card .sc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
@@ -63,6 +72,7 @@ textarea { resize: none; }
 .series-card .sc-tier-item .t-name { color: var(--text2); }
 .series-card .sc-tier-item .t-count { font-weight: 700; color: var(--text); }
 
+/* form */
 .form-group { margin-bottom: 14px; }
 .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text2); }
 .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--card); font-size: 14px; color: var(--text); outline: none; transition: border 0.15s; }
@@ -76,24 +86,29 @@ textarea { resize: none; }
 .btn-ghost { background: var(--card); color: var(--text); border: 1.5px solid var(--border); }
 .btn-block { width: 100%; }
 
+/* count stepper */
 .count-stepper { display: flex; align-items: center; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; }
 .count-stepper button { width: 40px; height: 40px; border: none; background: var(--pink-pale); font-size: 20px; cursor: pointer; color: var(--pink); }
 .count-stepper button:active { background: var(--pink-light); }
 .count-stepper input { width: 60px; height: 40px; border: none; text-align: center; font-size: 16px; font-weight: 600; border-left: 1.5px solid var(--border); border-right: 1.5px solid var(--border); outline: none; background: var(--card); }
 
+/* draw tier row */
 .draw-tier-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
 .draw-tier-row:last-child { border-bottom: none; }
 .draw-tier-row .dtl-label { font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
 
+/* bottom nav */
 .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--card); border-top: 1px solid var(--border); display: flex; z-index: 20; }
 .nav-item { flex: 1; padding: 10px 4px; text-align: center; cursor: pointer; border: none; background: none; color: var(--text3); font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: color 0.15s; }
 .nav-item.active { color: var(--pink); }
 .nav-item svg { width: 22px; height: 22px; }
 .nav-item .nav-add { width: 44px; height: 44px; background: var(--pink); color: #fff; border-radius: 50%; margin-top: -18px; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 2px 10px rgba(212,132,169,0.35); }
 
+/* pages */
 .page { display: none; }
 .page.active { display: block; }
 
+/* flow list */
 .flow-item { background: var(--card); border-radius: 14px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 6px rgba(212,132,169,0.04); }
 .flow-item .flow-left { display: flex; flex-direction: column; gap: 3px; }
 .flow-item .flow-name { font-weight: 500; font-size: 14px; }
@@ -103,6 +118,7 @@ textarea { resize: none; }
 .flow-item .flow-amount.income { color: var(--green); }
 .flow-item .flow-amount.expense { color: var(--red); }
 
+/* modal */
 .modal-overlay { position: fixed; inset: 0; background: rgba(58,58,58,0.35); z-index: 30; display: none; align-items: flex-end; justify-content: center; }
 .modal-overlay.active { display: flex; }
 .modal { background: var(--card); border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; max-height: 90dvh; overflow-y: auto; padding: 20px; animation: slideUp 0.2s ease; }
@@ -111,22 +127,31 @@ textarea { resize: none; }
 .modal .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
 .modal .modal-actions .btn { flex: 1; }
 
+/* settings */
 .settings-item { background: var(--card); border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.15s; }
 .settings-item:active { background: var(--pink-pale); }
 .settings-item .si-label { font-size: 14px; }
 .settings-item .si-value { color: var(--text2); font-size: 13px; }
 .settings-item .si-arrow { color: var(--text3); }
 
+/* empty */
 .empty { text-align: center; padding: 40px 20px; color: var(--text3); }
 .empty-icon { font-size: 48px; margin-bottom: 12px; }
 .empty p { font-size: 14px; }
 
+/* month filter */
 .month-filter { padding: 8px 12px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; overflow-x: auto; }
 .month-filter input[type="month"] { padding: 6px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); font-size: 13px; }
 
+/* toast */
 .toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: var(--pink); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 50; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
 .toast.show { opacity: 1; }
 
+/* quick draw btn */
+.quick-draw-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: calc(100% - 24px); margin: 0 12px 12px; padding: 14px; background: var(--pink); color: #fff; border: none; border-radius: 14px; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 10px rgba(212,132,169,0.3); transition: all 0.15s; }
+.quick-draw-btn:active { opacity: 0.85; transform: scale(0.98); }
+
+/* detail page */
 .detail-header { padding: 16px; background: var(--card); border-bottom: 1px solid var(--border); }
 .detail-header h2 { font-size: 18px; margin-bottom: 10px; }
 .detail-header .dh-tiers { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
@@ -134,6 +159,7 @@ textarea { resize: none; }
 .detail-row .val { color: var(--text); font-weight: 500; }
 .detail-actions { padding: 12px; display: flex; gap: 8px; }
 
+/* sell page */
 .sell-summary { background: var(--pink-pale); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
 .sell-summary .ss-tier { font-size: 15px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
 .sell-summary .ss-info { font-size: 13px; color: var(--text2); display: flex; gap: 16px; }
@@ -144,14 +170,17 @@ textarea { resize: none; }
 </head>
 <body>
 
+<!-- TOP BAR -->
 <div class="topbar" id="topbar">
   <button class="back" id="backBtn" style="display:none" onclick="goBack()">← 返回</button>
-  <h1 id="topbarTitle">微博装扮记账</h1>
+  <h1 id="topbarTitle">微博记账APP</h1>
   <div class="actions" id="topbarActions"></div>
 </div>
 
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- PAGE: HOME -->
 <div class="page active" id="page-home">
   <div class="stats-grid">
     <div class="stat-card">
@@ -181,10 +210,12 @@ textarea { resize: none; }
   </div>
 </div>
 
+<!-- PAGE: INVENTORY -->
 <div class="page" id="page-inventory">
   <div class="section" id="inventory-list"></div>
 </div>
 
+<!-- PAGE: SELL -->
 <div class="page" id="page-sell">
   <div class="section">
     <form id="sellForm" onsubmit="saveSale(event)">
@@ -244,6 +275,7 @@ textarea { resize: none; }
   </div>
 </div>
 
+<!-- PAGE: FLOW -->
 <div class="page" id="page-flow">
   <div class="month-filter">
     <span style="font-size:13px;color:var(--text2);white-space:nowrap;">筛选：</span>
@@ -253,6 +285,7 @@ textarea { resize: none; }
   <div class="section" id="flow-list"></div>
 </div>
 
+<!-- PAGE: SETTINGS -->
 <div class="page" id="page-settings">
   <div class="section">
     <div class="settings-item" onclick="openModal('modal-price')">
@@ -274,6 +307,7 @@ textarea { resize: none; }
   </div>
 </div>
 
+<!-- PAGE: DETAIL -->
 <div class="page" id="page-detail">
   <div class="detail-header" id="detail-header"></div>
   <div class="section" id="detail-body"></div>
@@ -283,6 +317,7 @@ textarea { resize: none; }
   </div>
 </div>
 
+<!-- MODAL: 抽卡 -->
 <div class="modal-overlay" id="modal-draw" onclick="if(event.target===this)closeModal('modal-draw')">
   <div class="modal">
     <h3>🎰 抽卡记录</h3>
@@ -360,6 +395,7 @@ textarea { resize: none; }
   </div>
 </div>
 
+<!-- MODAL: default price -->
 <div class="modal-overlay" id="modal-price" onclick="if(event.target===this)closeModal('modal-price')">
   <div class="modal">
     <h3>默认每盒价格</h3>
@@ -373,6 +409,7 @@ textarea { resize: none; }
   </div>
 </div>
 
+<!-- MODAL: confirm -->
 <div class="modal-overlay" id="modal-confirm" onclick="if(event.target===this)closeModal('modal-confirm')">
   <div class="modal">
     <h3 id="confirm-title">确认操作</h3>
@@ -384,6 +421,7 @@ textarea { resize: none; }
   </div>
 </div>
 
+<!-- MODAL: import -->
 <div class="modal-overlay" id="modal-import" onclick="if(event.target===this)closeModal('modal-import')">
   <div class="modal">
     <h3>导入 / 恢复数据</h3>
@@ -398,6 +436,7 @@ textarea { resize: none; }
   </div>
 </div>
 
+<!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <button class="nav-item active" data-page="home" onclick="nav('home')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
@@ -423,6 +462,7 @@ textarea { resize: none; }
 </div>
 
 <script>
+// ========== DATA ==========
 const STORAGE_KEY = 'wb_ornament_v3';
 const TIER_ORDER = ['legendary','hidden','rare','normal'];
 const TIER_NAMES = { normal:'普通', rare:'稀有', hidden:'隐藏', legendary:'超神' };
@@ -433,7 +473,7 @@ let currentPage = 'home';
 let prevPageStack = [];
 let detailSeriesId = null;
 let confirmCallback = null;
-let pendingSale = null;
+let pendingSale = null;  // { seriesId, tier }
 
 function loadData() {
   try {
@@ -451,6 +491,7 @@ function saveData() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) { toast('存储空间不足！'); }
 }
 
+// ========== UI ==========
 function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg;
@@ -464,8 +505,8 @@ function nav(page) {
   document.getElementById('page-' + page).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => { if (n.dataset.page === page) n.classList.add('active'); });
-  const titles = { home:'微博装扮记账', inventory:'库存管理', sell:'卖出', flow:'收支流水', settings:'我的', detail:'系列详情' };
-  document.getElementById('topbarTitle').textContent = titles[page] || '微博装扮记账';
+  const titles = { home:'微博记账APP', inventory:'库存管理', sell:'卖出', flow:'收支流水', settings:'我的', detail:'系列详情' };
+  document.getElementById('topbarTitle').textContent = titles[page] || '微博记账APP';
   document.getElementById('backBtn').style.display = 'none';
   currentPage = page;
   refreshPage(page);
@@ -479,7 +520,7 @@ function goBack() {
     currentPage = prev;
     refreshPage(prev);
     document.getElementById('backBtn').style.display = prev === 'detail' ? 'inline-block' : 'none';
-    document.getElementById('topbarTitle').textContent = '微博装扮记账';
+    document.getElementById('topbarTitle').textContent = '微博记账APP';
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   }
 }
@@ -495,6 +536,7 @@ function refreshPage(page) {
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
+// ========== HELPERS ==========
 function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 9); }
 function round(n) { return Math.round((parseFloat(n) || 0) * 100) / 100; }
 function formatDate(d) {
@@ -503,6 +545,7 @@ function formatDate(d) {
   return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
 }
 
+// 计算某系列某等级的剩余库存
 function getStock(seriesId, tier) {
   const s = state.series.find(x => x.id === seriesId);
   if (!s) return 0;
@@ -511,10 +554,12 @@ function getStock(seriesId, tier) {
   return total - sold;
 }
 
+// 计算某系列总库存
 function getSeriesStock(s) {
   return TIER_ORDER.reduce((sum, t) => sum + getStock(s.id, t), 0);
 }
 
+// ========== DRAW MODAL ==========
 function openDrawModal() {
   document.getElementById('draw-name').value = '';
   document.getElementById('draw-boxPrice').value = state.settings.defaultBoxPrice;
@@ -580,6 +625,7 @@ function submitDraw() {
   renderHome();
 }
 
+// ========== HOME ==========
 function renderHome() {
   const totalInvest = state.series.reduce((s, se) => s + (se.boxPrice * se.totalBoxes), 0);
   const totalSold = state.sales.reduce((s, sa) => s + (parseFloat(sa.soldPrice) || 0), 0);
@@ -593,6 +639,7 @@ function renderHome() {
   profitEl.className = 'value ' + (totalProfit >= 0 ? 'green' : 'red');
   document.getElementById('stat-stock').textContent = totalStock;
 
+  // global tier counts
   const tierCounts = { legendary:0, hidden:0, rare:0, normal:0 };
   state.series.forEach(s => {
     TIER_ORDER.forEach(t => { tierCounts[t] += getStock(s.id, t); });
@@ -601,6 +648,7 @@ function renderHome() {
     `<span class="tier-badge ${TIER_CLASS[t]}">${TIER_NAMES[t]}${tierCounts[t]}</span>`
   ).join('');
 
+  // series list
   const listEl = document.getElementById('home-series-list');
   const countEl = document.getElementById('home-series-count');
   countEl.textContent = `共 ${state.series.length} 个系列`;
@@ -632,6 +680,7 @@ function renderHome() {
   }).join('');
 }
 
+// ========== INVENTORY ==========
 function renderInventory() {
   const el = document.getElementById('inventory-list');
   if (state.series.length === 0) {
@@ -662,6 +711,7 @@ function renderInventory() {
   }).join('');
 }
 
+// ========== DETAIL ==========
 function showDetail(id) {
   detailSeriesId = id;
   const s = state.series.find(x => x.id === id);
@@ -678,6 +728,7 @@ function showDetail(id) {
     ${s.remark ? `<div style="margin-top:8px;font-size:12px;color:var(--text3);">备注：${s.remark}</div>` : ''}
   `;
 
+  // sales history for this series
   const seriesSales = state.sales.filter(sa => sa.seriesId === id);
   const bodyEl = document.getElementById('detail-body');
   if (seriesSales.length === 0) {
@@ -714,6 +765,7 @@ function showDetail(id) {
 }
 
 function editCurrentSeries() {
+  // TODO: edit series
   toast('编辑功能开发中');
 }
 
@@ -725,7 +777,9 @@ function sellFromDetail() {
   }, 50);
 }
 
+// ========== SELL ==========
 function initSellPage() {
+  // populate series select
   const sel = document.getElementById('sell-series');
   sel.innerHTML = '<option value="">请选择...</option>' +
     state.series.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
@@ -756,6 +810,7 @@ function onSellSeriesChange() {
     return;
   }
 
+  // populate tiers that have stock
   const s = state.series.find(x => x.id === seriesId);
   if (!s) return;
 
@@ -875,6 +930,7 @@ function saveSale(e) {
   nav('inventory');
 }
 
+// ========== FLOW ==========
 function renderFlow() {
   const month = document.getElementById('flow-month').value;
   const items = [
@@ -896,12 +952,13 @@ function renderFlow() {
         <div class="flow-time">${formatDate(item.date)}</div>
       </div>
       <div class="flow-right">
-        <div class="flow-amount ${item.type}">${item.type==='expense'?'-':'+'}$¥${round(item.amount)}</div>
+        <div class="flow-amount ${item.type}">${item.type==='expense'?'-':'+'}¥${round(item.amount)}</div>
       </div>
     </div>
   `).join('');
 }
 
+// ========== SETTINGS ==========
 function renderSettings() {
   document.getElementById('set-defaultPrice').textContent = state.settings.defaultBoxPrice + '元';
 }
@@ -931,8 +988,11 @@ function confirm(msg, callback) {
   openModal('modal-confirm');
 }
 
-function doConfirm() {}
+function doConfirm() {
+  // handled inline
+}
 
+// ========== EXPORT ==========
 function exportData() {
   if (state.series.length === 0) { toast('暂无数据可导出'); return; }
   const headers = ['系列名称','抽了多少盒','每盒价格','总投入','超神','隐藏','稀有','普通','剩余库存'];
@@ -941,7 +1001,7 @@ function exportData() {
     const stock = getSeriesStock(s);
     return [s.name, s.totalBoxes, s.boxPrice, totalInvest, s.tiers.legendary, s.tiers.hidden, s.tiers.rare, s.tiers.normal, stock];
   });
-  downloadCSV([headers, ...rows], '微博装扮记账.csv');
+  downloadCSV([headers, ...rows], '微博记账APP.csv');
   toast('CSV 已下载');
 }
 
@@ -966,6 +1026,7 @@ function doImport() {
   } catch(e) { toast('数据格式错误，导入失败'); }
 }
 
+// ========== INIT ==========
 loadData();
 nav('home');
 </script>
