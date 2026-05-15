@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head><!DOCTYPE html>
-<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -100,7 +98,7 @@ textarea { resize: none; }
 .nav-item { flex: 1; padding: 10px 4px; text-align: center; cursor: pointer; border: none; background: none; color: var(--text3); font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: color 0.15s; }
 .nav-item.active { color: var(--pink); }
 .nav-item svg { width: 22px; height: 22px; }
-.nav-item .nav-add { width: 44px; height: 44px; background: var(--pink); color: #fff; border-radius: 50%; margin-top: -16px; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 2px 10px rgba(212,132,169,0.35); }
+.nav-item .nav-add { width: 44px; height: 44px; background: var(--pink); color: #fff; border-radius: 50%; margin-top: -18px; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 2px 10px rgba(212,132,169,0.35); }
 
 /* pages */
 .page { display: none; }
@@ -180,7 +178,6 @@ textarea { resize: none; }
 
 <!-- PAGE: HOME -->
 <div class="page active" id="page-home">
-  <button class="quick-draw-btn" onclick="openDrawModal()">🎰 抽卡记录</button>
   <div class="stats-grid">
     <div class="stat-card">
       <div class="label">总投入</div>
@@ -219,16 +216,16 @@ textarea { resize: none; }
   <div class="section">
     <form id="sellForm" onsubmit="saveSale(event)">
       <div class="form-group">
-        <label>选择系列 *</label>
+        <label>装扮名称 *</label>
         <select id="sell-series" required onchange="onSellSeriesChange()">
-          <option value="">请选择系列...</option>
+          <option value="">请选择...</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label>选择要卖出的等级 *</label>
+        <label>装扮品质 *</label>
         <select id="sell-tier" required onchange="onSellTierChange()" disabled>
-          <option value="">先选系列...</option>
+          <option value="">先选装扮名称...</option>
         </select>
       </div>
 
@@ -238,28 +235,34 @@ textarea { resize: none; }
           <span class="tier-badge" id="ss-tier-badge"></span>
         </div>
         <div class="ss-info">
-          <span>该等级库存：<strong id="ss-stock"></strong> 件</span>
-          <span>每盒成本：<strong id="ss-cost"></strong></span>
+          <span>该品质库存：<strong id="ss-stock"></strong> 件</span>
+          <span>每件成本：<strong id="ss-cost"></strong></span>
         </div>
       </div>
 
-      <div class="form-group">
-        <label>卖出到手金额 (元) *</label>
-        <input type="number" id="sell-price" placeholder="实际收到的钱" required min="0" step="0.1">
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0;">
+          <label>卖了几件 *</label>
+          <input type="number" id="sell-qty" value="1" min="1" step="1" onchange="onSellQtyChange()">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>卖出总价 (元) *</label>
+          <input type="number" id="sell-totalPrice" placeholder="实际总收入" required min="0" step="0.1" oninput="onSellTotalPriceChange()">
+        </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" style="margin-top:10px;">
         <label>卖出时间</label>
         <input type="date" id="sell-date">
       </div>
 
       <div class="form-group">
         <label>卖出备注</label>
-        <textarea id="sell-remark" placeholder="卖给谁、平台、交易方式等"></textarea>
+        <textarea id="sell-remark" style="height:30px;" placeholder="卖给谁、平台、交易方式等"></textarea>
       </div>
 
       <div id="sell-profit-box" style="display:none;" class="sell-profit-box">
-        <div class="spb-label">预计盈亏</div>
+        <div class="spb-label">单件盈亏</div>
         <div class="spb-val" id="spb-val"></div>
       </div>
 
@@ -332,6 +335,11 @@ textarea { resize: none; }
     </div>
 
     <div class="form-group" style="margin-top:10px;">
+      <label style="font-size:12px;">抽卡时间</label>
+      <input type="date" id="draw-date" style="font-size:13px;">
+    </div>
+
+    <div class="form-group" style="margin-top:10px;">
       <label style="font-size:12px;color:var(--text3);">本次总成本：<strong id="draw-totalCost" style="color:var(--pink);font-size:16px;">¥17</strong></label>
     </div>
 
@@ -373,7 +381,7 @@ textarea { resize: none; }
 
     <div class="form-group">
       <label>备注</label>
-      <textarea id="draw-remark" placeholder="抽的时间、活动名称等"></textarea>
+      <textarea id="draw-remark" style="height:30px;" placeholder=""></textarea>
     </div>
 
     <div class="modal-actions">
@@ -434,8 +442,10 @@ textarea { resize: none; }
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
     库存
   </button>
-  <button class="nav-item" onclick="nav('sell')">
-    <div class="nav-add">卖</div>
+  <button class="nav-item" onclick="openDrawModal()">
+    <div class="nav-add">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
   </button>
   <button class="nav-item" data-page="flow" onclick="nav('flow')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
@@ -555,6 +565,7 @@ function openDrawModal() {
   document.getElementById('draw-hidden').value = '0';
   document.getElementById('draw-rare').value = '0';
   document.getElementById('draw-normal').value = '0';
+  document.getElementById('draw-date').value = new Date().toISOString().substring(0,10);
   updateDrawTotal();
   openModal('modal-draw');
 }
@@ -589,7 +600,8 @@ function submitDraw() {
   const totalItems = legendary + hidden + rare + normal;
   if (totalItems === 0) { toast('请填写至少一个等级的件数'); return; }
   const remark = document.getElementById('draw-remark').value.trim();
-  const now = new Date().toISOString();
+  const drawDate = document.getElementById('draw-date').value;
+  const createdAt = drawDate ? drawDate + 'T00:00:00.000Z' : new Date().toISOString();
 
   state.series.push({
     id: genId(),
@@ -598,8 +610,8 @@ function submitDraw() {
     totalBoxes: boxCount,
     tiers: { legendary, hidden, rare, normal },
     remark,
-    createdAt: now,
-    updatedAt: now
+    createdAt,
+    updatedAt: createdAt
   });
 
   saveData();
@@ -638,7 +650,7 @@ function renderHome() {
   countEl.textContent = `共 ${state.series.length} 个系列`;
 
   if (state.series.length === 0) {
-    listEl.innerHTML = '<div class="empty"><div class="empty-icon">📦</div><p>暂无系列，试试点「抽卡记录」入库吧</p></div>';
+    listEl.innerHTML = '<div class="empty"><div class="empty-icon">📦</div><p>暂无系列</p></div>';
     return;
   }
 
@@ -765,7 +777,7 @@ function sellFromDetail() {
 function initSellPage() {
   // populate series select
   const sel = document.getElementById('sell-series');
-  sel.innerHTML = '<option value="">请选择系列...</option>' +
+  sel.innerHTML = '<option value="">请选择...</option>' +
     state.series.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
 
   document.getElementById('sell-tier').innerHTML = '<option value="">先选系列...</option>';
@@ -773,7 +785,8 @@ function initSellPage() {
   document.getElementById('sell-summary').style.display = 'none';
   document.getElementById('sell-profit-box').style.display = 'none';
   document.getElementById('sell-submit-btn').disabled = true;
-  document.getElementById('sell-price').value = '';
+  document.getElementById('sell-qty').value = '1';
+  document.getElementById('sell-totalPrice').value = '';
   document.getElementById('sell-date').value = new Date().toISOString().substring(0,10);
   document.getElementById('sell-remark').value = '';
   pendingSale = null;
@@ -784,7 +797,7 @@ function onSellSeriesChange() {
   const tierSel = document.getElementById('sell-tier');
 
   if (!seriesId) {
-    tierSel.innerHTML = '<option value="">先选系列...</option>';
+    tierSel.innerHTML = '<option value="">先选装扮名称...</option>';
     tierSel.disabled = true;
     document.getElementById('sell-summary').style.display = 'none';
     document.getElementById('sell-profit-box').style.display = 'none';
@@ -799,7 +812,7 @@ function onSellSeriesChange() {
 
   const availableTiers = TIER_ORDER.filter(t => getStock(seriesId, t) > 0);
   if (availableTiers.length === 0) {
-    tierSel.innerHTML = '<option value="">该系列已售罄</option>';
+    tierSel.innerHTML = '<option value="">该装扮已售罄</option>';
     tierSel.disabled = true;
     document.getElementById('sell-summary').style.display = 'none';
     document.getElementById('sell-submit-btn').disabled = true;
@@ -807,9 +820,12 @@ function onSellSeriesChange() {
     return;
   }
 
-  tierSel.innerHTML = '<option value="">选择等级...</option>' +
+  tierSel.innerHTML = '<option value="">选择装扮品质...</option>' +
     availableTiers.map(t => `<option value="${t}">${TIER_NAMES[t]} (剩${getStock(seriesId, t)}件)</option>`).join('');
   tierSel.disabled = false;
+  document.getElementById('sell-qty').value = '1';
+  document.getElementById('sell-totalPrice').value = '';
+  document.getElementById('sell-profit-box').style.display = 'none';
 }
 
 function onSellTierChange() {
@@ -828,7 +844,7 @@ function onSellTierChange() {
   if (!s) return;
 
   const stock = getStock(seriesId, tier);
-  pendingSale = { seriesId, tier };
+  pendingSale = { seriesId, tier, stock };
 
   document.getElementById('sell-summary').style.display = 'block';
   document.getElementById('ss-series-name').textContent = s.name;
@@ -836,25 +852,42 @@ function onSellTierChange() {
   document.getElementById('ss-tier-badge').textContent = TIER_NAMES[tier];
   document.getElementById('ss-stock').textContent = stock;
   document.getElementById('ss-cost').textContent = '¥' + round(s.boxPrice);
+  document.getElementById('sell-qty').value = '1';
+  document.getElementById('sell-qty').max = stock;
+  document.getElementById('sell-totalPrice').value = '';
   document.getElementById('sell-submit-btn').disabled = false;
+}
 
+function onSellQtyChange() {
+  const qty = parseInt(document.getElementById('sell-qty').value) || 1;
+  if (pendingSale) {
+    const max = getStock(pendingSale.seriesId, pendingSale.tier);
+    if (qty > max) document.getElementById('sell-qty').value = max;
+  }
   updateSellProfitPreview();
 }
 
-document.getElementById('sell-price').addEventListener('input', updateSellProfitPreview);
+function onSellTotalPriceChange() {
+  updateSellProfitPreview();
+}
+
+document.getElementById('sell-qty').addEventListener('input', onSellQtyChange);
+document.getElementById('sell-totalPrice').addEventListener('input', onSellTotalPriceChange);
 
 function updateSellProfitPreview() {
   if (!pendingSale) return;
   const s = state.series.find(x => x.id === pendingSale.seriesId);
   if (!s) return;
-  const price = parseFloat(document.getElementById('sell-price').value) || 0;
-  const profit = price - s.boxPrice;
+  const qty = parseInt(document.getElementById('sell-qty').value) || 0;
+  const totalPrice = parseFloat(document.getElementById('sell-totalPrice').value) || 0;
+  const unitPrice = qty > 0 ? totalPrice / qty : 0;
+  const profitPerUnit = unitPrice - s.boxPrice;
   const box = document.getElementById('sell-profit-box');
   const el = document.getElementById('spb-val');
-  if (price > 0) {
+  if (totalPrice > 0 && qty > 0) {
     box.style.display = 'block';
-    el.textContent = (profit >= 0 ? '盈利' : '亏损') + ' ¥' + round(Math.abs(profit));
-    el.style.color = profit >= 0 ? 'var(--green)' : 'var(--red)';
+    el.textContent = (profitPerUnit >= 0 ? '盈利' : '亏损') + ' ¥' + round(Math.abs(profitPerUnit)) + '/件';
+    el.style.color = profitPerUnit >= 0 ? 'var(--green)' : 'var(--red)';
   } else {
     box.style.display = 'none';
   }
@@ -862,29 +895,35 @@ function updateSellProfitPreview() {
 
 function saveSale(e) {
   e.preventDefault();
-  if (!pendingSale) { toast('请选择系列和等级'); return; }
-  const soldPrice = parseFloat(document.getElementById('sell-price').value);
+  if (!pendingSale) { toast('请选择装扮名称和品质'); return; }
+  const qty = parseInt(document.getElementById('sell-qty').value) || 0;
+  const totalPrice = parseFloat(document.getElementById('sell-totalPrice').value);
   const soldAt = document.getElementById('sell-date').value || new Date().toISOString().substring(0,10);
   const remark = document.getElementById('sell-remark').value.trim();
-  if (!soldPrice || soldPrice <= 0) { toast('请输入正确的卖出金额'); return; }
 
-  const stock = getStock(pendingSale.seriesId, pendingSale.tier);
-  if (stock <= 0) { toast('该等级库存不足'); return; }
+  if (!qty || qty <= 0) { toast('请输入卖出的数量'); return; }
+  if (!totalPrice || totalPrice <= 0) { toast('请输入正确的卖出总价'); return; }
+  if (qty > pendingSale.stock) { toast('库存不足，最多可卖 ' + pendingSale.stock + ' 件'); return; }
 
-  state.sales.push({
-    id: genId(),
-    seriesId: pendingSale.seriesId,
-    seriesName: state.series.find(s => s.id === pendingSale.seriesId)?.name || '',
-    tier: pendingSale.tier,
-    soldPrice,
-    soldAt,
-    remark,
-    createdAt: new Date().toISOString()
-  });
+  const unitPrice = totalPrice / qty;
+  const now = new Date().toISOString();
+
+  for (let i = 0; i < qty; i++) {
+    state.sales.push({
+      id: genId(),
+      seriesId: pendingSale.seriesId,
+      seriesName: state.series.find(s => s.id === pendingSale.seriesId)?.name || '',
+      tier: pendingSale.tier,
+      soldPrice: round(unitPrice),
+      soldAt,
+      remark,
+      createdAt: now
+    });
+  }
 
   saveData();
-  toast('卖出成功');
-  nav('home');
+  toast(`卖出成功 ${qty} 件，共 ¥${round(totalPrice)}`);
+  nav('inventory');
 }
 
 // ========== FLOW ==========
@@ -986,1122 +1025,6 @@ function doImport() {
 // ========== INIT ==========
 loadData();
 nav('home');
-</script>
-</body>
-</html>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>微博装扮记账</title>
-<style>
-:root {
-  --pink: #d484a9;
-  --pink-light: #fce4f0;
-  --pink-mid: #f5d0e5;
-  --pink-pale: #fdf2f8;
-  --bg: #faf8f8;
-  --card: #fff;
-  --border: #ede0e5;
-  --text: #3a3a3a;
-  --text2: #8a7a80;
-  --text3: #b5a5ac;
-  --green: #6b9e7c;
-  --red: #c4687a;
-  --amber: #d4a76a;
-  --blue: #7a9ec4;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; font-size: 14px; max-width: 480px; margin: 0 auto; min-height: 100dvh; padding-bottom: 70px; }
-input, select, textarea, button { font-family: inherit; font-size: inherit; }
-textarea { resize: none; }
-
-/* top bar */
-.topbar { background: var(--card); padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
-.topbar::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: repeating-linear-gradient(90deg, var(--pink-mid) 0, var(--pink-mid) 8px, transparent 8px, transparent 12px); }
-.topbar h1 { font-size: 16px; font-weight: 600; color: var(--text); }
-.topbar .back { background: none; border: none; color: var(--pink); font-size: 14px; cursor: pointer; padding: 4px 8px; }
-.topbar .actions { display: flex; gap: 8px; }
-
-/* stat cards */
-.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; }
-.stat-card { background: var(--card); border-radius: 16px; padding: 14px; border: 1px solid var(--border); box-shadow: 0 2px 12px rgba(212,132,169,0.06); }
-.stat-card .label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
-.stat-card .value { font-size: 20px; font-weight: 700; }
-.stat-card .value.green { color: var(--green); }
-.stat-card .value.red { color: var(--red); }
-.stat-card .value.blue { color: var(--blue); }
-.stat-card.wide { grid-column: span 2; }
-.stat-card .tiers { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
-.tier-badge { padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
-.tier-green { background: #eaf3ee; color: var(--green); }
-.tier-amber { background: #faf2e0; color: var(--amber); }
-.tier-blue { background: #e8f0f8; color: var(--blue); }
-.tier-red { background: #fce8ec; color: var(--red); }
-
-/* section */
-.section { padding: 12px; }
-.section-title { font-size: 13px; color: var(--text2); margin-bottom: 10px; font-weight: 500; }
-
-/* ornament list */
-.ornament-list { display: flex; flex-direction: column; gap: 10px; }
-.ornament-card { background: var(--card); border-radius: 16px; padding: 12px; border: 1px solid var(--border); display: flex; gap: 12px; cursor: pointer; transition: all 0.15s; box-shadow: 0 2px 8px rgba(212,132,169,0.04); }
-.ornament-card:active { background: var(--pink-pale); }
-.ornament-card .thumb { width: 56px; height: 56px; border-radius: 12px; background: var(--pink-pale); overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid var(--border); }
-.ornament-card .thumb img { width: 100%; height: 100%; object-fit: cover; }
-.ornament-card .thumb .no-img { color: var(--text3); font-size: 11px; text-align: center; line-height: 56px; }
-.ornament-card .info { flex: 1; min-width: 0; }
-.ornament-card .name { font-weight: 600; font-size: 14px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ornament-card .meta { font-size: 12px; color: var(--text2); display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 6px; }
-.ornament-card .tags { display: flex; gap: 4px; flex-wrap: wrap; }
-.ornament-card .cost { font-size: 13px; font-weight: 600; color: var(--text); }
-.ornament-card .profit { font-size: 13px; font-weight: 600; }
-.ornament-card .profit.positive { color: var(--green); }
-.ornament-card .profit.negative { color: var(--red); }
-.status-badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
-.s-unsold { background: #e8f0f8; color: var(--blue); }
-.s-sold { background: #eaf3ee; color: var(--green); }
-.s-kept { background: #faf2e0; color: var(--amber); }
-
-/* filter bar */
-.filter-bar { padding: 8px 12px; display: flex; gap: 6px; overflow-x: auto; white-space: nowrap; }
-.filter-bar select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 20px; background: var(--card); font-size: 13px; color: var(--text); cursor: pointer; }
-.filter-bar select:active { border-color: var(--pink); }
-
-/* form */
-.form-group { margin-bottom: 16px; }
-.form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text2); }
-.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--card); font-size: 14px; color: var(--text); outline: none; transition: border 0.15s; }
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--pink); }
-.form-group textarea { height: 80px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: opacity 0.15s; }
-.btn:active { opacity: 0.8; }
-.btn-primary { background: var(--pink); color: #fff; box-shadow: 0 2px 8px rgba(212,132,169,0.3); }
-.btn-danger { background: var(--red); color: #fff; }
-.btn-ghost { background: var(--card); color: var(--text); border: 1.5px solid var(--border); }
-.btn-block { width: 100%; }
-.tag-select { display: flex; flex-wrap: wrap; gap: 6px; }
-.tag-option { padding: 4px 12px; border-radius: 14px; border: 1.5px solid var(--border); font-size: 12px; cursor: pointer; background: var(--card); transition: all 0.15s; }
-.tag-option.selected { background: var(--pink); color: #fff; border-color: var(--pink); }
-
-/* image upload */
-.img-upload { border: 2px dashed var(--pink-mid); border-radius: 16px; padding: 20px; text-align: center; cursor: pointer; position: relative; transition: all 0.15s; background: var(--pink-pale); }
-.img-upload:active { border-color: var(--pink); background: var(--pink-light); }
-.img-upload img { max-width: 100%; max-height: 200px; border-radius: 12px; }
-.img-upload .hint { color: var(--text3); font-size: 13px; }
-.img-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-
-/* tier selector */
-.tier-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.tier-option { padding: 10px; border: 2px solid var(--border); border-radius: 14px; text-align: center; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; background: var(--card); }
-.tier-option.selected { border-width: 2px; }
-.tier-option.tg-green.selected { background: #eaf3ee; border-color: var(--green); color: var(--green); }
-.tier-option.tg-amber.selected { background: #faf2e0; border-color: var(--amber); color: var(--amber); }
-.tier-option.tg-blue.selected { background: #e8f0f8; border-color: var(--blue); color: var(--blue); }
-.tier-option.tg-red.selected { background: #fce8ec; border-color: var(--red); color: var(--red); }
-
-/* bottom nav */
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--card); border-top: 1px solid var(--border); display: flex; z-index: 20; }
-.nav-item { flex: 1; padding: 10px 4px; text-align: center; cursor: pointer; border: none; background: none; color: var(--text3); font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: color 0.15s; }
-.nav-item.active { color: var(--pink); }
-.nav-item svg { width: 22px; height: 22px; }
-.nav-item .nav-add { width: 44px; height: 44px; background: var(--pink); color: #fff; border-radius: 50%; margin-top: -16px; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 2px 10px rgba(212,132,169,0.35); }
-
-/* pages */
-.page { display: none; }
-.page.active { display: block; }
-
-/* flow list */
-.flow-item { background: var(--card); border-radius: 14px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 6px rgba(212,132,169,0.04); }
-.flow-item .flow-left { display: flex; flex-direction: column; gap: 3px; }
-.flow-item .flow-name { font-weight: 500; font-size: 14px; }
-.flow-item .flow-time { font-size: 12px; color: var(--text3); }
-.flow-item .flow-right { text-align: right; }
-.flow-item .flow-amount { font-weight: 600; font-size: 15px; }
-.flow-item .flow-amount.income { color: var(--green); }
-.flow-item .flow-amount.expense { color: var(--red); }
-.flow-item .flow-tag { font-size: 11px; color: var(--text3); margin-top: 2px; }
-
-/* modal */
-.modal-overlay { position: fixed; inset: 0; background: rgba(58,58,58,0.35); z-index: 30; display: none; align-items: flex-end; justify-content: center; }
-.modal-overlay.active { display: flex; }
-.modal { background: var(--card); border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; max-height: 90dvh; overflow-y: auto; padding: 20px; animation: slideUp 0.2s ease; }
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; text-align: center; color: var(--text); }
-.modal .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
-.modal .modal-actions .btn { flex: 1; }
-
-/* settings */
-.settings-item { background: var(--card); border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.15s; }
-.settings-item:active { background: var(--pink-pale); }
-.settings-item .si-label { font-size: 14px; }
-.settings-item .si-value { color: var(--text2); font-size: 13px; }
-.settings-item .si-arrow { color: var(--text3); }
-
-/* detail */
-.detail-header { display: flex; gap: 16px; padding: 16px; background: var(--card); border-bottom: 1px solid var(--border); }
-.detail-img { width: 100px; height: 100px; border-radius: 16px; background: var(--pink-pale); overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); flex-shrink: 0; }
-.detail-img img { width: 100%; height: 100%; object-fit: cover; }
-.detail-info { flex: 1; }
-.detail-info h2 { font-size: 18px; margin-bottom: 8px; }
-.detail-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: var(--text2); }
-.detail-row .val { color: var(--text); font-weight: 500; }
-.detail-profit { font-size: 16px; font-weight: 700; margin-top: 8px; }
-.detail-actions { padding: 12px; display: flex; gap: 8px; }
-
-/* empty */
-.empty { text-align: center; padding: 40px 20px; color: var(--text3); }
-.empty-icon { font-size: 48px; margin-bottom: 12px; }
-.empty p { font-size: 14px; }
-
-/* month filter */
-.month-filter { padding: 8px 12px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; overflow-x: auto; }
-.month-filter input[type="month"] { padding: 6px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); font-size: 13px; }
-
-/* toast */
-.toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: var(--pink); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 50; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
-.toast.show { opacity: 1; }
-
-/* count stepper */
-.count-stepper { display: flex; align-items: center; gap: 0; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; width: fit-content; }
-.count-stepper button { width: 40px; height: 40px; border: none; background: var(--pink-pale); font-size: 20px; cursor: pointer; color: var(--pink); }
-.count-stepper button:active { background: var(--pink-light); }
-.count-stepper input { width: 60px; height: 40px; border: none; text-align: center; font-size: 16px; font-weight: 600; border-left: 1.5px solid var(--border); border-right: 1.5px solid var(--border); outline: none; background: var(--card); }
-
-/* report table */
-.report-item { background: var(--card); border-radius: 14px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border); box-shadow: 0 1px 6px rgba(212,132,169,0.04); }
-.report-item .ri-name { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
-.report-item .ri-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 3px; }
-.report-item .ri-row .val { color: var(--text); font-weight: 500; }
-.report-item .ri-profit { font-size: 14px; font-weight: 700; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
-</style>
-</head>
-<body>
-
-<!-- TOP BAR -->
-<div class="topbar" id="topbar">
-  <button class="back" id="backBtn" style="display:none" onclick="goBack()">← 返回</button>
-  <h1 id="topbarTitle">微博装扮记账</h1>
-  <div class="actions" id="topbarActions"></div>
-</div>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- PAGE: HOME / DASHBOARD -->
-<div class="page active" id="page-home">
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="label">总投入</div>
-      <div class="value" id="stat-invest">¥0</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">总卖出</div>
-      <div class="value green" id="stat-sold">¥0</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">总盈亏</div>
-      <div class="value" id="stat-profit">¥0</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">库存件数</div>
-      <div class="value blue" id="stat-unsold">0</div>
-    </div>
-    <div class="stat-card wide">
-      <div class="label">各等级库存</div>
-      <div class="tiers" id="stat-tiers"></div>
-    </div>
-  </div>
-  <div class="section">
-    <div class="section-title">最近记录</div>
-    <div id="home-recent"></div>
-  </div>
-</div>
-
-<!-- PAGE: INVENTORY -->
-<div class="page" id="page-inventory">
-  <div class="filter-bar">
-    <select id="filter-tier" onchange="renderInventory()">
-      <option value="">全部等级</option>
-      <option value="normal">普通款</option>
-      <option value="rare">稀有款</option>
-      <option value="hidden">隐藏款</option>
-      <option value="legendary">超神款</option>
-    </select>
-    <select id="filter-status" onchange="renderInventory()">
-      <option value="">全部状态</option>
-      <option value="unsold">待出售</option>
-      <option value="sold">已售出</option>
-      <option value="kept">自留不卖</option>
-    </select>
-    <select id="filter-month" onchange="renderInventory()">
-      <option value="">全部时间</option>
-    </select>
-  </div>
-  <div class="section" id="inventory-list"></div>
-</div>
-
-<!-- PAGE: ADD -->
-<div class="page" id="page-add">
-  <div class="section">
-    <form id="addForm" onsubmit="saveOrnament(event)">
-      <input type="hidden" id="edit-id">
-
-      <div class="form-group">
-        <label>装扮名称 *</label>
-        <input type="text" id="add-name" placeholder="如：圣诞限定鹿角" required>
-      </div>
-
-      <div class="form-group">
-        <label>等级 *</label>
-        <div class="tier-selector" id="tierSelector">
-          <div class="tier-option tg-green" data-tier="normal" onclick="selectTier('normal')">普通款</div>
-          <div class="tier-option tg-amber" data-tier="rare" onclick="selectTier('rare')">稀有款</div>
-          <div class="tier-option tg-blue" data-tier="hidden" onclick="selectTier('hidden')">隐藏款</div>
-          <div class="tier-option tg-red" data-tier="legendary" onclick="selectTier('legendary')">超神款</div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>配图</label>
-        <div class="img-upload" id="imgUpload">
-          <div class="hint" id="imgHint">点击上传图片</div>
-          <img id="imgPreview" style="display:none">
-          <input type="file" accept="image/*" id="imgInput" onchange="previewImage(this)">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>抽取次数 *</label>
-          <div class="count-stepper">
-            <button type="button" onclick="changeCount('drawCount',-1)">−</button>
-            <input type="number" id="add-drawCount" value="1" min="1" required onchange="updateCost()">
-            <button type="button" onclick="changeCount('drawCount',1)">+</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>单次价格 (元)</label>
-          <input type="number" id="add-unitPrice" value="17" min="0" step="0.1" onchange="updateCost()">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>总成本</label>
-        <div id="add-totalCost" style="font-size:18px;font-weight:700;color:var(--blue);padding:8px 0;">¥17</div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>心理标价 (元)</label>
-          <input type="number" id="add-marketPrice" placeholder="市场价参考" min="0" step="0.1">
-        </div>
-        <div class="form-group">
-          <label>状态</label>
-          <select id="add-status">
-            <option value="unsold">待出售</option>
-            <option value="sold">已售出</option>
-            <option value="kept">自留不卖</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>自定义标签</label>
-        <div class="tag-select" id="tagSelect">
-          <div class="tag-option" onclick="toggleTag(this)" data-tag="限定">限定</div>
-          <div class="tag-option" onclick="toggleTag(this)" data-tag="绝版">绝版</div>
-          <div class="tag-option" onclick="toggleTag(this)" data-tag="热门">热门</div>
-          <div class="tag-option" onclick="toggleTag(this)" data-tag="可溢价">可溢价</div>
-          <div class="tag-option" onclick="toggleTag(this)" data-tag="难出">难出</div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>备注</label>
-        <textarea id="add-remark" placeholder="抽的时间、活动名称、心情、囤货理由等"></textarea>
-      </div>
-
-      <button type="submit" class="btn btn-primary btn-block" id="addSubmitBtn">保存记录</button>
-      <button type="button" class="btn btn-danger btn-block" id="deleteBtn" style="display:none;margin-top:10px" onclick="deleteOrnament()">删除此记录</button>
-    </form>
-  </div>
-</div>
-
-<!-- PAGE: SELL -->
-<div class="page" id="page-sell">
-  <div class="section">
-    <form id="sellForm" onsubmit="saveSale(event)">
-      <div class="form-group">
-        <label>选择要卖出的装扮 *</label>
-        <select id="sell-ornamentId" required onchange="onSelectOrnamentToSell()">
-          <option value="">请选择...</option>
-        </select>
-      </div>
-
-      <div id="sell-ornamentInfo" style="display:none;background:#f8f8f8;border-radius:10px;padding:12px;margin-bottom:16px;">
-        <div style="font-weight:600;margin-bottom:6px;" id="si-name"></div>
-        <div style="font-size:13px;color:var(--text2);" id="si-cost"></div>
-        <div style="font-size:13px;color:var(--text2);" id="si-tier"></div>
-      </div>
-
-      <div class="form-group">
-        <label>卖出到手金额 (元) *</label>
-        <input type="number" id="sell-price" placeholder="实际收到的钱" required min="0" step="0.1">
-      </div>
-
-      <div class="form-group">
-        <label>卖出时间</label>
-        <input type="date" id="sell-date">
-      </div>
-
-      <div class="form-group">
-        <label>卖出备注</label>
-        <textarea id="sell-remark" placeholder="卖给谁、平台、交易方式等"></textarea>
-      </div>
-
-      <div id="sell-profit-preview" style="display:none;padding:12px;background:#f8f8f8;border-radius:10px;margin-bottom:16px;text-align:center;">
-        <div style="font-size:13px;color:var(--text2);margin-bottom:4px;">预计盈亏</div>
-        <div id="sp-preview" style="font-size:20px;font-weight:700;"></div>
-      </div>
-
-      <button type="submit" class="btn btn-primary btn-block">确认卖出</button>
-    </form>
-  </div>
-</div>
-
-<!-- PAGE: FLOW -->
-<div class="page" id="page-flow">
-  <div class="month-filter">
-    <span style="font-size:13px;color:var(--text2);white-space:nowrap;">筛选：</span>
-    <input type="month" id="flow-month" onchange="renderFlow()">
-    <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="document.getElementById('flow-month').value='';renderFlow()">清除</button>
-  </div>
-  <div class="section" id="flow-list"></div>
-</div>
-
-<!-- PAGE: REPORT -->
-<div class="page" id="page-report">
-  <div class="section" id="report-list"></div>
-</div>
-
-<!-- PAGE: SETTINGS -->
-<div class="page" id="page-settings">
-  <div class="section">
-    <div class="settings-item" onclick="openModal('modal-price')">
-      <span class="si-label">默认单次抽取价格</span>
-      <span><span class="si-value" id="set-defaultPrice">17元</span> <span class="si-arrow">›</span></span>
-    </div>
-    <div class="settings-item" onclick="openModal('modal-tags')">
-      <span class="si-label">自定义标签管理</span>
-      <span class="si-arrow">›</span>
-    </div>
-    <div class="settings-item" onclick="exportData()">
-      <span class="si-label">导出数据 (Excel)</span>
-      <span class="si-arrow">›</span>
-    </div>
-    <div class="settings-item" onclick="exportJSON()">
-      <span class="si-label">备份 / 恢复数据</span>
-      <span class="si-arrow">›</span>
-    </div>
-    <div class="settings-item" onclick="confirmClear()" style="color:var(--red);">
-      <span class="si-label">清空所有数据</span>
-      <span class="si-arrow">›</span>
-    </div>
-  </div>
-</div>
-
-<!-- PAGE: DETAIL -->
-<div class="page" id="page-detail">
-  <div class="detail-header" id="detail-header"></div>
-  <div class="section" id="detail-body"></div>
-  <div class="detail-actions">
-    <button class="btn btn-ghost" onclick="editCurrentOrnament()">编辑</button>
-    <button class="btn btn-primary" onclick="sellFromDetail()">卖出</button>
-  </div>
-</div>
-
-<!-- MODAL: default price -->
-<div class="modal-overlay" id="modal-price" onclick="if(event.target===this)closeModal('modal-price')">
-  <div class="modal">
-    <h3>默认单次抽取价格</h3>
-    <div class="form-group">
-      <input type="number" id="modal-price-input" value="17" min="0" step="0.1">
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modal-price')">取消</button>
-      <button class="btn btn-primary" onclick="saveDefaultPrice()">保存</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: tags -->
-<div class="modal-overlay" id="modal-tags" onclick="if(event.target===this)closeModal('modal-tags')">
-  <div class="modal">
-    <h3>自定义标签</h3>
-    <div class="form-group">
-      <input type="text" id="modal-tag-input" placeholder="输入标签名称，按回车添加" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomTag()}">
-    </div>
-    <div id="modal-tag-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;"></div>
-    <div class="modal-actions">
-      <button class="btn btn-primary btn-block" onclick="closeModal('modal-tags')">完成</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: confirm -->
-<div class="modal-overlay" id="modal-confirm" onclick="if(event.target===this)closeModal('modal-confirm')">
-  <div class="modal">
-    <h3 id="confirm-title">确认操作</h3>
-    <p id="confirm-msg" style="text-align:center;color:var(--text2);margin-bottom:16px;font-size:14px;"></p>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">取消</button>
-      <button class="btn btn-danger" id="confirm-btn" onclick="doConfirm()">确认</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: import -->
-<div class="modal-overlay" id="modal-import" onclick="if(event.target===this)closeModal('modal-import')">
-  <div class="modal">
-    <h3>导入 / 恢复数据</h3>
-    <div class="form-group">
-      <label>粘贴备份 JSON 数据</label>
-      <textarea id="import-textarea" style="height:120px;" placeholder="将之前导出的 JSON 数据粘贴在此..."></textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modal-import')">取消</button>
-      <button class="btn btn-primary" onclick="doImport()">导入</button>
-    </div>
-  </div>
-</div>
-
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <button class="nav-item active" data-page="home" onclick="nav('home')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-    首页
-  </button>
-  <button class="nav-item" data-page="inventory" onclick="nav('inventory')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
-    库存
-  </button>
-  <button class="nav-item" onclick="nav('add')">
-    <div class="nav-add">+</div>
-  </button>
-  <button class="nav-item" data-page="flow" onclick="nav('flow')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-    流水
-  </button>
-  <button class="nav-item" data-page="settings" onclick="nav('settings')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-    我的
-  </button>
-</div>
-
-<script>
-// ========== DATA LAYER ==========
-const STORAGE_KEY = 'wb_ornament_v1';
-const TIER_NAMES = { normal:'普通款', rare:'稀有款', hidden:'隐藏款', legendary:'超神款' };
-const TIER_CLASS = { normal:'tier-green', rare:'tier-amber', hidden:'tier-blue', legendary:'tier-red' };
-const STATUS_NAMES = { unsold:'待出售', sold:'已售出', kept:'自留不卖' };
-const STATUS_CLASS = { unsold:'s-unsold', sold:'s-sold', kept:'s-kept' };
-
-let state = { ornaments: [], sales: [], settings: { defaultPrice: 17, customTags: [] }, version: 1 };
-let currentPage = 'home';
-let prevPageStack = [];
-let detailOrnamentId = null;
-let selectedTier = null;
-let selectedTags = [];
-let confirmCallback = null;
-
-function loadData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      state.ornaments = parsed.ornaments || [];
-      state.sales = parsed.sales || [];
-      state.settings = parsed.settings || { defaultPrice: 17, customTags: [] };
-    }
-  } catch(e) { console.warn('load error', e); }
-}
-
-function saveData() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) { toast('存储空间不足，请导出数据！'); }
-}
-
-// ========== UI HELPERS ==========
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2000);
-}
-
-function nav(page) {
-  if (page === 'add') { resetAddForm(); }
-  prevPageStack.push(currentPage);
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const navMap = { home:'home', inventory:'inventory', add:'add', flow:'flow', settings:'settings' };
-  document.querySelectorAll('.nav-item').forEach(n => {
-    if (n.dataset.page === (navMap[page] || page)) n.classList.add('active');
-  });
-  document.getElementById('topbarTitle').textContent = page === 'add' ? '新增记录' : page === 'settings' ? '我的' : page === 'inventory' ? '库存管理' : page === 'flow' ? '收支流水' : page === 'report' ? '盈亏报表' : '微博装扮记账';
-  document.getElementById('backBtn').style.display = 'none';
-  currentPage = page;
-  refreshPage(page);
-}
-
-function goBack() {
-  if (prevPageStack.length > 0) {
-    const prev = prevPageStack.pop();
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-' + prev).classList.add('active');
-    currentPage = prev;
-    refreshPage(prev);
-    document.getElementById('backBtn').style.display = prev === 'detail' ? 'inline-block' : 'none';
-    document.getElementById('topbarTitle').textContent = '微博装扮记账';
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  }
-}
-
-function refreshPage(page) {
-  if (page === 'home') renderDashboard();
-  if (page === 'inventory') { buildMonthFilters(); renderInventory(); }
-  if (page === 'flow') renderFlow();
-  if (page === 'report') renderReport();
-  if (page === 'settings') renderSettings();
-  if (page === 'sell') populateSellSelect();
-}
-
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-// ========== DASHBOARD ==========
-function renderDashboard() {
-  const ornaments = state.ornaments;
-  const sales = state.sales;
-
-  const totalInvest = ornaments.reduce((s, o) => s + (o.drawCount * o.unitPrice), 0);
-  const soldIds = new Set(sales.map(s => s.ornamentId));
-  const totalSold = sales.reduce((s, sale) => s + sale.soldPrice, 0);
-  const totalProfit = totalSold - totalInvest;
-  const unsoldCount = ornaments.filter(o => o.status === 'unsold').length;
-
-  document.getElementById('stat-invest').textContent = '¥' + round(totalInvest);
-  document.getElementById('stat-sold').textContent = '¥' + round(totalSold);
-  const profitEl = document.getElementById('stat-profit');
-  profitEl.textContent = (totalProfit >= 0 ? '+' : '') + '¥' + round(totalProfit);
-  profitEl.className = 'value ' + (totalProfit >= 0 ? 'green' : 'red');
-  document.getElementById('stat-unsold').textContent = unsoldCount;
-
-  const tierCounts = { normal:0, rare:0, hidden:0, legendary:0 };
-  ornaments.filter(o => o.status === 'unsold').forEach(o => { if (tierCounts[o.tier] !== undefined) tierCounts[o.tier]++; });
-  const tiersEl = document.getElementById('stat-tiers');
-  tiersEl.innerHTML = Object.entries(tierCounts).map(([k, v]) => `<span class="tier-badge ${TIER_CLASS[k]}">${TIER_NAMES[k]}(${v})</span>`).join('');
-
-  // recent
-  const recentEl = document.getElementById('home-recent');
-  const allItems = [
-    ...ornaments.map(o => ({ type:'draw', name: o.name, amount: -(o.drawCount * o.unitPrice), date: o.createdAt, tier: o.tier })),
-    ...sales.map(s => { const o = ornaments.find(x => x.id === s.ornamentId); return { type:'sell', name: o ? o.name : '?', amount: s.soldPrice, date: s.soldAt, tier: o ? o.tier : 'normal' }; })
-  ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-
-  if (allItems.length === 0) {
-    recentEl.innerHTML = '<div class="empty"><div class="empty-icon">📦</div><p>暂无记录，试试新增一条吧</p></div>';
-  } else {
-    recentEl.innerHTML = allItems.map(item => `
-      <div class="flow-item" style="cursor:pointer" onclick="${item.type==='draw' ? '' : ''}">
-        <div class="flow-left">
-          <div class="flow-name"><span class="tier-badge ${TIER_CLASS[item.tier]}" style="font-size:10px;padding:1px 6px;margin-right:4px;">${item.type==='draw'?'抽':'卖'}</span>${item.name}</div>
-          <div class="flow-time">${formatDate(item.date)}</div>
-        </div>
-        <div class="flow-right">
-          <div class="flow-amount ${item.type==='draw'?'expense':'income'}">${item.type==='draw'?'-':'+'}$${round(item.amount)}</div>
-        </div>
-      </div>
-    `).join('');
-  }
-}
-
-// ========== INVENTORY ==========
-function buildMonthFilters() {
-  const months = new Set();
-  state.ornaments.forEach(o => { if (o.createdAt) months.add(o.createdAt.substring(0,7)); });
-  state.sales.forEach(s => { if (s.soldAt) months.add(s.soldAt.substring(0,7)); });
-  const select = document.getElementById('filter-month');
-  select.innerHTML = '<option value="">全部时间</option>' + [...months].sort().reverse().map(m => `<option value="${m}">${m}</option>`).join('');
-}
-
-function renderInventory() {
-  const tier = document.getElementById('filter-tier').value;
-  const status = document.getElementById('filter-status').value;
-  const month = document.getElementById('filter-month').value;
-
-  let list = state.ornaments.filter(o => {
-    if (tier && o.tier !== tier) return false;
-    if (status && o.status !== status) return false;
-    if (month && !o.createdAt.startsWith(month)) return false;
-    return true;
-  }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-  const el = document.getElementById('inventory-list');
-  if (list.length === 0) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">🎭</div><p>没有符合条件的装扮</p></div>';
-    return;
-  }
-
-  el.innerHTML = '<div class="ornament-list">' + list.map(o => {
-    const sale = state.sales.find(s => s.ornamentId === o.id);
-    const profit = sale ? sale.soldPrice - (o.drawCount * o.unitPrice) : null;
-    return `
-      <div class="ornament-card" onclick="showDetail('${o.id}')">
-        <div class="thumb">
-          ${o.image ? `<img src="${o.image}" alt="${o.name}">` : '<div class="no-img">🎀</div>'}
-        </div>
-        <div class="info">
-          <div class="name">${o.name}</div>
-          <div class="meta">
-            <span class="tier-badge ${TIER_CLASS[o.tier]}">${TIER_NAMES[o.tier]}</span>
-            <span class="status-badge ${STATUS_CLASS[o.status]}">${STATUS_NAMES[o.status]}</span>
-          </div>
-          ${o.tags && o.tags.length ? `<div class="tags">${o.tags.map(t => `<span style="font-size:11px;background:#f0f0f0;padding:1px 6px;border-radius:8px;color:var(--text2);">${t}</span>`).join('')}</div>` : ''}
-          <div class="cost">成本 ¥${round(o.drawCount * o.unitPrice)}</div>
-          ${sale ? `<div class="profit ${profit >= 0 ? 'positive' : 'negative'}">${profit >= 0 ? '盈利' : '亏损'} ¥${round(Math.abs(profit))}</div>` : ''}
-        </div>
-      </div>
-    `;
-  }).join('') + '</div>';
-}
-
-// ========== DETAIL ==========
-function showDetail(id) {
-  detailOrnamentId = id;
-  const o = state.ornaments.find(x => x.id === id);
-  if (!o) return;
-  const sale = state.sales.find(s => s.ornamentId === id);
-
-  document.getElementById('detail-header').innerHTML = `
-    <div class="detail-img">${o.image ? `<img src="${o.image}">` : '🎀'}</div>
-    <div class="detail-info">
-      <h2>${o.name}</h2>
-      <span class="tier-badge ${TIER_CLASS[o.tier]}">${TIER_NAMES[o.tier]}</span>
-      <span class="status-badge ${STATUS_CLASS[o.status]}" style="margin-left:6px;">${STATUS_NAMES[o.status]}</span>
-      ${o.tags && o.tags.length ? `<div style="margin-top:6px;">${o.tags.map(t => `<span style="font-size:11px;background:#f0f0f0;padding:1px 6px;border-radius:8px;color:var(--text2);margin-right:4px;">${t}</span>`).join('')}</div>` : ''}
-    </div>
-  `;
-
-  const profit = sale ? sale.soldPrice - (o.drawCount * o.unitPrice) : null;
-  document.getElementById('detail-body').innerHTML = `
-    <div class="detail-row"><span>抽取次数</span><span class="val">${o.drawCount} 次</span></div>
-    <div class="detail-row"><span>单次价格</span><span class="val">¥${o.unitPrice}</span></div>
-    <div class="detail-row"><span>抽取成本</span><span class="val">¥${round(o.drawCount * o.unitPrice)}</span></div>
-    ${o.marketPrice ? `<div class="detail-row"><span>心理标价</span><span class="val">¥${o.marketPrice}</span></div>` : ''}
-    <div class="detail-row"><span>录入时间</span><span class="val">${formatDate(o.createdAt)}</span></div>
-    ${sale ? `
-      <div class="detail-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);"><span>卖出金额</span><span class="val" style="color:var(--green);">¥${sale.soldPrice}</span></div>
-      <div class="detail-row"><span>卖出时间</span><span class="val">${formatDate(sale.soldAt)}</span></div>
-      ${sale.remark ? `<div class="detail-row"><span>卖出备注</span><span class="val">${sale.remark}</span></div>` : ''}
-      <div class="detail-profit ${profit >= 0 ? '' : ''}" style="color:${profit >= 0 ? 'var(--green)' : 'var(--red)'}">${profit >= 0 ? '盈利' : '亏损'} ¥${round(Math.abs(profit))}</div>
-    ` : ''}
-    ${o.remark ? `<div style="margin-top:12px;padding:10px;background:#f8f8f8;border-radius:8px;font-size:13px;color:var(--text2);">备注：${o.remark}</div>` : ''}
-  `;
-
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-detail').classList.add('active');
-  document.getElementById('backBtn').style.display = 'inline-block';
-  document.getElementById('topbarTitle').textContent = '装扮详情';
-  currentPage = 'detail';
-}
-
-function editCurrentOrnament() {
-  const o = state.ornaments.find(x => x.id === detailOrnamentId);
-  if (!o) return;
-  prevPageStack.push('detail');
-  openEditForm(o);
-}
-
-function sellFromDetail() {
-  prevPageStack.push('detail');
-  nav('sell');
-  setTimeout(() => {
-    document.getElementById('sell-ornamentId').value = detailOrnamentId;
-    onSelectOrnamentToSell();
-  }, 50);
-}
-
-// ========== ADD / EDIT FORM ==========
-function selectTier(tier) {
-  selectedTier = tier;
-  document.querySelectorAll('.tier-option').forEach(el => el.classList.remove('selected'));
-  document.querySelector(`.tier-option[data-tier="${tier}"]`).classList.add('selected');
-}
-
-function toggleTag(el) { el.classList.toggle('selected'); }
-
-function changeCount(field, delta) {
-  const input = document.getElementById(field === 'drawCount' ? 'add-drawCount' : field);
-  let val = parseInt(input.value) || 1;
-  val = Math.max(1, val + delta);
-  input.value = val;
-  updateCost();
-}
-
-function updateCost() {
-  const count = parseInt(document.getElementById('add-drawCount').value) || 0;
-  const price = parseFloat(document.getElementById('add-unitPrice').value) || state.settings.defaultPrice;
-  document.getElementById('add-totalCost').textContent = '¥' + round(count * price);
-}
-
-function previewImage(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    document.getElementById('imgPreview').src = e.target.result;
-    document.getElementById('imgPreview').style.display = 'block';
-    document.getElementById('imgHint').style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-}
-
-function resetAddForm() {
-  document.getElementById('edit-id').value = '';
-  document.getElementById('add-name').value = '';
-  selectedTier = null;
-  document.querySelectorAll('.tier-option').forEach(el => el.classList.remove('selected'));
-  document.getElementById('imgPreview').style.display = 'none';
-  document.getElementById('imgHint').style.display = 'block';
-  document.getElementById('imgInput').value = '';
-  document.getElementById('add-drawCount').value = '1';
-  document.getElementById('add-unitPrice').value = state.settings.defaultPrice;
-  document.getElementById('add-totalCost').textContent = '¥' + round(state.settings.defaultPrice);
-  document.getElementById('add-marketPrice').value = '';
-  document.getElementById('add-status').value = 'unsold';
-  selectedTags = [];
-  document.querySelectorAll('#tagSelect .tag-option').forEach(el => el.classList.remove('selected'));
-  document.getElementById('add-remark').value = '';
-  document.getElementById('addSubmitBtn').textContent = '保存记录';
-  document.getElementById('deleteBtn').style.display = 'none';
-  updateCost();
-}
-
-function openEditForm(o) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-add').classList.add('active');
-  document.getElementById('topbarTitle').textContent = '编辑记录';
-  document.getElementById('backBtn').style.display = 'inline-block';
-  currentPage = 'add';
-
-  document.getElementById('edit-id').value = o.id;
-  document.getElementById('add-name').value = o.name;
-  selectedTier = o.tier;
-  document.querySelectorAll('.tier-option').forEach(el => {
-    el.classList.toggle('selected', el.dataset.tier === o.tier);
-  });
-  if (o.image) {
-    document.getElementById('imgPreview').src = o.image;
-    document.getElementById('imgPreview').style.display = 'block';
-    document.getElementById('imgHint').style.display = 'none';
-  } else {
-    document.getElementById('imgPreview').style.display = 'none';
-    document.getElementById('imgHint').style.display = 'block';
-  }
-  document.getElementById('add-drawCount').value = o.drawCount;
-  document.getElementById('add-unitPrice').value = o.unitPrice;
-  document.getElementById('add-totalCost').textContent = '¥' + round(o.drawCount * o.unitPrice);
-  document.getElementById('add-marketPrice').value = o.marketPrice || '';
-  document.getElementById('add-status').value = o.status || 'unsold';
-  selectedTags = o.tags || [];
-  document.querySelectorAll('#tagSelect .tag-option').forEach(el => {
-    el.classList.toggle('selected', selectedTags.includes(el.dataset.tag));
-  });
-  document.getElementById('add-remark').value = o.remark || '';
-  document.getElementById('addSubmitBtn').textContent = '更新记录';
-  document.getElementById('deleteBtn').style.display = o.status !== 'sold' ? 'none' : 'inline-block';
-}
-
-function saveOrnament(e) {
-  e.preventDefault();
-  const name = document.getElementById('add-name').value.trim();
-  if (!name) { toast('请输入装扮名称'); return; }
-  if (!selectedTier) { toast('请选择等级'); return; }
-  const drawCount = parseInt(document.getElementById('add-drawCount').value) || 1;
-  const unitPrice = parseFloat(document.getElementById('add-unitPrice').value) || state.settings.defaultPrice;
-  const marketPrice = parseFloat(document.getElementById('add-marketPrice').value) || 0;
-  const status = document.getElementById('add-status').value;
-  const remark = document.getElementById('add-remark').value.trim();
-  const imgEl = document.getElementById('imgPreview');
-  const image = imgEl.style.display !== 'none' ? imgEl.src : '';
-  const tags = [...document.querySelectorAll('#tagSelect .tag-option.selected')].map(el => el.dataset.tag);
-
-  const editId = document.getElementById('edit-id').value;
-  if (editId) {
-    const idx = state.ornaments.findIndex(o => o.id === editId);
-    if (idx !== -1) {
-      state.ornaments[idx] = { ...state.ornaments[idx], name, tier: selectedTier, image, drawCount, unitPrice, totalCost: drawCount * unitPrice, status, marketPrice, tags, remark, updatedAt: new Date().toISOString() };
-      toast('已更新');
-    }
-  } else {
-    const ornament = {
-      id: genId(),
-      name, tier: selectedTier, image, drawCount, unitPrice,
-      totalCost: drawCount * unitPrice,
-      status, marketPrice, tags, remark,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    state.ornaments.push(ornament);
-    toast('已保存');
-  }
-
-  saveData();
-  nav('inventory');
-}
-
-function deleteOrnament() {
-  const id = document.getElementById('edit-id').value;
-  if (!id) return;
-  confirm('确定删除此记录？删除后不可恢复。', () => {
-    state.ornaments = state.ornaments.filter(o => o.id !== id);
-    state.sales = state.sales.filter(s => s.ornamentId !== id);
-    saveData();
-    toast('已删除');
-    nav('inventory');
-  });
-}
-
-// ========== SELL ==========
-function populateSellSelect() {
-  const unsold = state.ornaments.filter(o => o.status === 'unsold');
-  const select = document.getElementById('sell-ornamentId');
-  select.innerHTML = '<option value="">请选择...</option>' + unsold.map(o =>
-    `<option value="${o.id}">${o.name} (${TIER_NAMES[o.tier]})</option>`
-  ).join('');
-  document.getElementById('sell-ornamentInfo').style.display = 'none';
-  document.getElementById('sell-profit-preview').style.display = 'none';
-  document.getElementById('sell-date').value = new Date().toISOString().substring(0,10);
-  document.getElementById('sell-price').value = '';
-  document.getElementById('sell-remark').value = '';
-}
-
-function onSelectOrnamentToSell() {
-  const id = document.getElementById('sell-ornamentId').value;
-  const o = state.ornaments.find(x => x.id === id);
-  if (!o) {
-    document.getElementById('sell-ornamentInfo').style.display = 'none';
-    document.getElementById('sell-profit-preview').style.display = 'none';
-    return;
-  }
-  document.getElementById('si-name').textContent = o.name;
-  document.getElementById('si-cost').textContent = `成本 ¥${round(o.drawCount * o.unitPrice)}`;
-  document.getElementById('si-tier').innerHTML = `<span class="tier-badge ${TIER_CLASS[o.tier]}">${TIER_NAMES[o.tier]}</span>`;
-  document.getElementById('sell-ornamentInfo').style.display = 'block';
-
-  const price = parseFloat(document.getElementById('sell-price').value) || 0;
-  updateSellProfit(o, price);
-
-  const profitPreview = document.getElementById('sell-profit-preview');
-  profitPreview.style.display = 'block';
-}
-
-function updateSellProfit(o, price) {
-  const cost = o.drawCount * o.unitPrice;
-  const profit = price - cost;
-  const el = document.getElementById('sp-preview');
-  el.textContent = (profit >= 0 ? '盈利' : '亏损') + ' ¥' + round(Math.abs(profit));
-  el.style.color = profit >= 0 ? 'var(--green)' : 'var(--red)';
-}
-
-document.getElementById('sell-price').addEventListener('input', function() {
-  const id = document.getElementById('sell-ornamentId').value;
-  const o = state.ornaments.find(x => x.id === id);
-  if (!o) return;
-  updateSellProfit(o, parseFloat(this.value) || 0);
-});
-
-function saveSale(e) {
-  e.preventDefault();
-  const ornamentId = document.getElementById('sell-ornamentId').value;
-  const soldPrice = parseFloat(document.getElementById('sell-price').value);
-  const soldAt = document.getElementById('sell-date').value || new Date().toISOString().substring(0,10);
-  const remark = document.getElementById('sell-remark').value.trim();
-  if (!ornamentId) { toast('请选择要卖出的装扮'); return; }
-  if (!soldPrice || soldPrice <= 0) { toast('请输入正确的卖出金额'); return; }
-
-  const sale = { id: genId(), ornamentId, soldPrice, soldAt, remark, createdAt: new Date().toISOString() };
-  state.sales.push(sale);
-  const o = state.ornaments.find(x => x.id === ornamentId);
-  if (o) o.status = 'sold';
-  saveData();
-  toast('卖出记录已保存');
-  nav('inventory');
-}
-
-// ========== FLOW ==========
-function renderFlow() {
-  const month = document.getElementById('flow-month').value;
-  const items = [
-    ...state.ornaments.map(o => ({ type:'expense', name: o.name, amount: o.drawCount * o.unitPrice, date: o.createdAt, tier: o.tier, id: o.id })),
-    ...state.sales.map(s => { const o = state.ornaments.find(x => x.id === s.ornamentId); return { type:'income', name: o ? o.name : '?', amount: s.soldPrice, date: s.soldAt, tier: o ? o.tier : 'normal', id: s.id }; })
-  ].filter(item => !month || item.date.startsWith(month))
-   .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  const el = document.getElementById('flow-list');
-  if (items.length === 0) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">📝</div><p>暂无记录</p></div>';
-    return;
-  }
-
-  el.innerHTML = items.map(item => `
-    <div class="flow-item">
-      <div class="flow-left">
-        <div class="flow-name"><span class="tier-badge ${TIER_CLASS[item.tier]}" style="font-size:10px;padding:1px 6px;margin-right:4px;">${item.type==='expense'?'抽':'卖'}</span>${item.name}</div>
-        <div class="flow-time">${formatDate(item.date)}</div>
-      </div>
-      <div class="flow-right">
-        <div class="flow-amount ${item.type}">${item.type==='expense'?'-':'+'}$¥${round(item.amount)}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ========== REPORT ==========
-function renderReport() {
-  const el = document.getElementById('report-list');
-  if (state.ornaments.length === 0) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">📊</div><p>暂无数据</p></div>';
-    return;
-  }
-
-  const sorted = [...state.ornaments].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  el.innerHTML = sorted.map(o => {
-    const sale = state.sales.find(s => s.ornamentId === o.id);
-    const cost = o.drawCount * o.unitPrice;
-    const profit = sale ? sale.soldPrice - cost : null;
-    return `
-      <div class="report-item" onclick="showDetail('${o.id}')">
-        <div class="ri-name"><span class="tier-badge ${TIER_CLASS[o.tier]}">${TIER_NAMES[o.tier]}</span> ${o.name}</div>
-        <div class="ri-row"><span>抽取</span><span class="val">${o.drawCount}次 × ¥${o.unitPrice} = ¥${round(cost)}</span></div>
-        ${sale ? `<div class="ri-row"><span>卖出</span><span class="val" style="color:var(--green);">¥${round(sale.soldPrice)}</span></div>` : ''}
-        ${profit !== null ? `<div class="ri-profit" style="color:${profit >= 0 ? 'var(--green)' : 'var(--red)'}">${profit >= 0 ? '盈利' : '亏损'} ¥${round(Math.abs(profit))}</div>` : '<div class="ri-profit" style="color:var(--text3);font-weight:400;">待出售</div>'}
-      </div>
-    `;
-  }).join('');
-}
-
-// ========== SETTINGS ==========
-function renderSettings() {
-  document.getElementById('set-defaultPrice').textContent = state.settings.defaultPrice + '元';
-}
-
-function saveDefaultPrice() {
-  const val = parseFloat(document.getElementById('modal-price-input').value);
-  if (!val || val <= 0) { toast('请输入正确的价格'); return; }
-  state.settings.defaultPrice = val;
-  saveData();
-  renderSettings();
-  closeModal('modal-price');
-  toast('已保存');
-}
-
-function addCustomTag() {
-  const input = document.getElementById('modal-tag-input');
-  const tag = input.value.trim();
-  if (!tag) return;
-  if (state.settings.customTags.includes(tag)) { toast('标签已存在'); return; }
-  state.settings.customTags.push(tag);
-  saveData();
-  input.value = '';
-  renderTagModal();
-}
-
-function removeCustomTag(tag) {
-  state.settings.customTags = state.settings.customTags.filter(t => t !== tag);
-  saveData();
-  renderTagModal();
-}
-
-function renderTagModal() {
-  const el = document.getElementById('modal-tag-list');
-  const allTags = ['限定','绝版','热门','可溢价','难出', ...state.settings.customTags];
-  el.innerHTML = allTags.map(t => `<div class="tag-option" onclick="toggleTag(this)" data-tag="${t}">${t} ✕</div>`).join('');
-}
-
-function confirmClear() {
-  confirm('确定要清空所有数据吗？此操作不可恢复！', () => {
-    state = { ornaments: [], sales: [], settings: { defaultPrice: 17, customTags: [] }, version: 1 };
-    saveData();
-    toast('已清空');
-    nav('home');
-  });
-}
-
-function confirm(msg, callback) {
-  document.getElementById('confirm-msg').textContent = msg;
-  document.getElementById('confirm-btn').onclick = () => { closeModal('modal-confirm'); callback(); };
-  openModal('modal-confirm');
-}
-
-// ========== EXPORT ==========
-function exportData() {
-  if (state.ornaments.length === 0) { toast('暂无数据可导出'); return; }
-  const headers = ['名称','等级','抽取次数','单价','总成本','状态','心理标价','标签','备注','录入时间','卖出金额','卖出时间','盈亏'];
-  const rows = state.ornaments.map(o => {
-    const sale = state.sales.find(s => s.ornamentId === o.id);
-    const cost = o.drawCount * o.unitPrice;
-    const profit = sale ? sale.soldPrice - cost : null;
-    return [o.name, TIER_NAMES[o.tier], o.drawCount, o.unitPrice, cost, STATUS_NAMES[o.status]||o.status, o.marketPrice||'', (o.tags||[]).join(','), o.remark||'', o.createdAt, sale ? sale.soldPrice : '', sale ? sale.soldAt : '', profit !== null ? profit : ''];
-  });
-  downloadCSV([headers, ...rows], '微博装扮记账.csv');
-  toast('CSV 已下载');
-}
-
-function downloadCSV(rows, filename) {
-  const csv = rows.map(r => r.map(c => `"${(c===null||c===undefined?'':c).toString().replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = filename; a.click();
-}
-
-function exportJSON() {
-  const dataStr = JSON.stringify(state, null, 2);
-  const blob = new Blob([dataStr], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = 'wb_ornament_backup.json'; a.click();
-  toast('JSON 备份已下载');
-}
-
-function doImport() {
-  const text = document.getElementById('import-textarea').value.trim();
-  if (!text) { toast('请粘贴数据'); return; }
-  try {
-    const data = JSON.parse(text);
-    if (!data.ornaments) throw new Error('Invalid');
-    state = data;
-    saveData();
-    closeModal('modal-import');
-    toast('数据已恢复');
-    nav('home');
-  } catch(e) { toast('数据格式错误，导入失败'); }
-}
-
-// ========== HELPERS ==========
-function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 9); }
-function round(n) { return Math.round((parseFloat(n) || 0) * 100) / 100; }
-function formatDate(d) {
-  if (!d) return '';
-  const dt = new Date(d);
-  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
-}
-
-// ========== INIT ==========
-loadData();
-nav('home');
-document.getElementById('add-unitPrice').value = state.settings.defaultPrice;
 </script>
 </body>
 </html>
