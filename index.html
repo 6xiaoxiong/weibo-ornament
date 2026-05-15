@@ -352,8 +352,12 @@ textarea { resize: none; }
       <input type="date" id="draw-date" style="font-size:13px;">
     </div>
 
-    <div class="form-group" style="margin-top:10px;">
-      <label style="font-size:12px;color:var(--text3);">本次总成本：<strong id="draw-totalCost" style="color:var(--pink);font-size:16px;">¥17</strong></label>
+    <div class="form-group" style="margin-top:5px;">
+      <label style="font-size:12px;color:var(--text3);">
+        总投入（自动计算 <strong id="draw-totalCostDisplay" style="color:var(--pink);font-size:14px;">¥17</strong>）
+        <span style="font-size:11px;color:var(--text3);margin-left:6px;">手动改下面可覆盖</span>
+      </label>
+      <input type="number" id="draw-totalCost" placeholder="留空则自动计算" min="0" step="0.01" style="font-size:13px;color:var(--text);">
     </div>
 
     <div style="margin-bottom:14px;">
@@ -397,10 +401,22 @@ textarea { resize: none; }
       <textarea id="draw-remark" style="height:30px;" placeholder=""></textarea>
     </div>
 
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modal-draw')">取消</button>
-      <button class="btn btn-primary" onclick="submitDraw()">确认入库</button>
+    <div class="form-group">
+      <label>系列图片</label>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <label class="btn btn-ghost" style="padding:8px 14px;font-size:12px;cursor:pointer;">选择图片
+          <input type="file" id="draw-image" accept="image/*" style="display:none" onchange="previewDrawImage(event)">
+        </label>
+        <span id="draw-image-name" style="font-size:12px;color:var(--text3);"></span>
+        <img id="draw-image-preview" style="display:none;width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--border);">
+        <button id="draw-image-clear" style="display:none;background:none;border:none;color:var(--red);font-size:12px;cursor:pointer;" onclick="clearDrawImage()">删除</button>
+      </div>
     </div>
+
+    <div class="modal-actions">
+    <button class="btn btn-ghost" onclick="closeModal('modal-draw')">取消</button>
+    <button class="btn btn-primary" onclick="submitDraw()">确认入库</button>
+  </div>
   </div>
 </div>
 
@@ -457,6 +473,20 @@ textarea { resize: none; }
       <div class="form-group" style="margin-bottom:0;">
         <label style="font-size:12px;">每盒价格 (元)</label>
         <input type="number" id="edit-boxPrice" min="0" step="0.1" style="font-size:13px;">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label style="font-size:12px;">实际总投入 (元)</label>
+        <input type="number" id="edit-totalCost" min="0" step="0.01" style="font-size:13px;" placeholder="留空自动计算">
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:6px;">
+      <label style="font-size:12px;">系列图片</label>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <img id="edit-image-preview" style="width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--border);">
+        <label class="btn btn-ghost" style="padding:6px 12px;font-size:11px;cursor:pointer;">更换图片
+          <input type="file" id="edit-image" accept="image/*" style="display:none" onchange="previewEditImage(event)">
+        </label>
+        <button id="edit-image-clear" style="background:none;border:none;color:var(--red);font-size:11px;cursor:pointer;display:none;" onclick="clearEditImage()">删除图片</button>
       </div>
     </div>
     <div style="margin-bottom:14px;">
@@ -619,8 +649,35 @@ function openDrawModal() {
   document.getElementById('draw-rare').value = '0';
   document.getElementById('draw-normal').value = '0';
   document.getElementById('draw-date').value = new Date().toISOString().substring(0,10);
+  // 重置总投入
+  const costEl = document.getElementById('draw-totalCost');
+  costEl.value = '';
+  costEl.dataset.touched = '';
+  // 重置图片
+  clearDrawImage();
   updateDrawTotal();
   openModal('modal-draw');
+}
+
+function previewDrawImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('draw-image-name').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = document.getElementById('draw-image-preview');
+    img.src = ev.target.result;
+    img.style.display = 'block';
+    document.getElementById('draw-image-clear').style.display = 'inline-block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearDrawImage() {
+  document.getElementById('draw-image').value = '';
+  document.getElementById('draw-image-name').textContent = '';
+  document.getElementById('draw-image-preview').style.display = 'none';
+  document.getElementById('draw-image-clear').style.display = 'none';
 }
 
 function changeDrawCount(tier, delta) {
@@ -633,12 +690,21 @@ function changeDrawCount(tier, delta) {
 function updateDrawTotal() {
   const price = parseFloat(document.getElementById('draw-boxPrice').value) || state.settings.defaultBoxPrice;
   const count = parseInt(document.getElementById('draw-boxCount').value) || 1;
-  document.getElementById('draw-totalCost').textContent = '¥' + round(price * count);
+  const autoTotal = round(price * count);
+  document.getElementById('draw-totalCostDisplay').textContent = '¥' + autoTotal;
+  // 自动填入总投入（用户手动改过就不覆盖）
+  const manualEl = document.getElementById('draw-totalCost');
+  if (!manualEl.dataset.touched) {
+    manualEl.value = autoTotal;
+  }
 }
 
 ['draw-boxPrice','draw-boxCount'].forEach(id => {
   document.getElementById(id).addEventListener('change', updateDrawTotal);
   document.getElementById(id).addEventListener('input', updateDrawTotal);
+});
+document.getElementById('draw-totalCost').addEventListener('input', function() {
+  this.dataset.touched = '1';
 });
 
 function submitDraw() {
@@ -661,6 +727,8 @@ function submitDraw() {
     name,
     boxPrice,
     totalBoxes: boxCount,
+    actualTotalCost: parseFloat(document.getElementById('draw-totalCost').value) || null,
+    image: document.getElementById('draw-image-preview').src || null,
     tiers: { legendary, hidden, rare, normal },
     remark,
     createdAt,
@@ -670,13 +738,13 @@ function submitDraw() {
   saveData();
   closeModal('modal-draw');
   const totalCost = boxPrice * boxCount;
-  toast(`已入库 ${totalItems} 件，共 ¥${round(totalCost)}`);
+  toast(`已入库 ${totalItems} 件，共 ¥${round(parseFloat(document.getElementById('draw-totalCost').value) || totalCost)}`);
   renderHome();
 }
 
 // ========== HOME ==========
 function renderHome() {
-  const totalInvest = state.series.reduce((s, se) => s + (se.boxPrice * se.totalBoxes), 0);
+  const totalInvest = state.series.reduce((s, se) => s + (se.actualTotalCost || (se.boxPrice * se.totalBoxes)), 0);
   const totalSold = state.sales.reduce((s, sa) => s + (parseFloat(sa.soldPrice) || 0), 0);
   const totalProfit = totalSold - totalInvest;
   const totalStock = state.series.reduce((s, se) => s + getSeriesStock(se), 0);
@@ -709,6 +777,9 @@ function renderHome() {
 
   listEl.innerHTML = state.series.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map(s => {
     const stock = getSeriesStock(s);
+    const totalInvest = s.actualTotalCost || (s.boxPrice * s.totalBoxes);
+    const totalSold = state.sales.filter(sa => sa.seriesId === s.id).reduce((sum, sa) => sum + (parseFloat(sa.soldPrice) || 0), 0);
+    const profit = totalSold - totalInvest;
     const tierHtml = TIER_ORDER.map(t => {
       const c = getStock(s.id, t);
       if (c <= 0) return '';
@@ -716,14 +787,20 @@ function renderHome() {
     }).filter(Boolean).join('');
 
     return `
-      <div class="series-card" onclick="showDetail('${s.id}')">
-        <div class="sc-header">
-          <div>
-            <div class="sc-name">${s.name}</div>
-            <div class="sc-meta">${s.totalBoxes}盒 × ¥${round(s.boxPrice)} ｜ 库存${stock}件</div>
+      <div class="series-card" onclick="showDetail('${s.id}')" style="position:relative;min-height:80px;">
+        <div style="display:flex;gap:12px;">
+          ${s.image ? `<div style="flex-shrink:0;width:68px;height:68px;border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+            <img src="${s.image}" style="width:100%;height:100%;object-fit:cover;">
+          </div>` : ''}
+          <div style="flex:1;min-width:0;">
+            <div class="sc-name" style="margin-bottom:2px;">${s.name}</div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:6px;">
+              ${formatDate(s.createdAt)} ｜ 投入¥${round(totalInvest)} ｜ 库存${stock}件
+            </div>
+            <div class="sc-tiers" style="margin-bottom:4px;">${tierHtml || '<span style="color:var(--text3);font-size:11px;">已售罄</span>'}</div>
+            <div style="font-size:12px;font-weight:600;color:${profit >= 0 ? 'var(--green)' : 'var(--red)'};">${profit >= 0 ? '盈利' : '亏损'}${round(Math.abs(profit)) > 0 ? (profit >= 0 ? '+' : '-') + '¥' + round(Math.abs(profit)) : ' ¥0'}</div>
           </div>
         </div>
-        <div class="sc-tiers">${tierHtml || '<span style="color:var(--text3);font-size:12px;">已售罄</span>'}</div>
       </div>
     `;
   }).join('');
@@ -739,6 +816,9 @@ function renderInventory() {
 
   el.innerHTML = state.series.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map(s => {
     const stock = getSeriesStock(s);
+    const totalInvest = s.actualTotalCost || (s.boxPrice * s.totalBoxes);
+    const totalSold = state.sales.filter(sa => sa.seriesId === s.id).reduce((sum, sa) => sum + (parseFloat(sa.soldPrice) || 0), 0);
+    const profit = totalSold - totalInvest;
     const tierHtml = TIER_ORDER.map(t => {
       const c = getStock(s.id, t);
       const total = s.tiers[t] || 0;
@@ -747,14 +827,18 @@ function renderInventory() {
 
     return `
       <div class="series-card" onclick="showDetail('${s.id}')">
+        ${s.image ? `<div style="float:right;width:56px;height:56px;border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-left:10px;flex-shrink:0;">
+          <img src="${s.image}" style="width:100%;height:100%;object-fit:cover;">
+        </div>` : ''}
         <div class="sc-header">
           <div>
             <div class="sc-name">${s.name}</div>
-            <div class="sc-meta">${s.totalBoxes}盒 × ¥${round(s.boxPrice)}</div>
+            <div class="sc-meta" style="font-size:11px;color:var(--text3);margin-bottom:4px;">${formatDate(s.createdAt)} ｜ 投入¥${round(totalInvest)}</div>
           </div>
         </div>
         ${tierHtml}
-        <div style="margin-top:8px;font-size:12px;color:var(--text3);">剩余库存：${stock}件</div>
+        <div style="margin-top:6px;font-size:11px;color:var(--text3);">剩余库存：${stock}件</div>
+        <div style="font-size:12px;font-weight:600;margin-top:4px;color:${profit >= 0 ? 'var(--green)' : 'var(--red)'};">${profit >= 0 ? '盈利' : '亏损'}${round(Math.abs(profit)) > 0 ? (profit >= 0 ? '+' : '-') + '¥' + round(Math.abs(profit)) : ' ¥0'}</div>
       </div>
     `;
   }).join('');
@@ -767,13 +851,21 @@ function showDetail(id) {
   if (!s) return;
 
   document.getElementById('detail-header').innerHTML = `
-    <h2>${s.name}</h2>
-    <div class="dh-tiers">
-      ${TIER_ORDER.map(t => `<span class="tier-badge ${TIER_CLASS[t]}">${TIER_NAMES[t]}${getStock(s.id, t)}</span>`).join('')}
+    <div style="display:flex;align-items:flex-start;gap:12px;">
+      ${s.image ? `<div style="flex-shrink:0;width:72px;height:72px;border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+        <img src="${s.image}" style="width:100%;height:100%;object-fit:cover;">
+      </div>` : ''}
+      <div style="flex:1;">
+        <h2 style="font-size:18px;margin-bottom:8px;">${s.name}</h2>
+        <div class="dh-tiers">
+          ${TIER_ORDER.map(t => `<span class="tier-badge ${TIER_CLASS[t]}">${TIER_NAMES[t]}${getStock(s.id, t)}</span>`).join('')}
+        </div>
+      </div>
     </div>
     <div class="detail-row"><span>总抽盒数</span><span class="val">${s.totalBoxes}盒</span></div>
     <div class="detail-row"><span>每盒价格</span><span class="val">¥${round(s.boxPrice)}</span></div>
-    <div class="detail-row"><span>总投入</span><span class="val">¥${round(s.boxPrice * s.totalBoxes)}</span></div>
+    <div class="detail-row"><span>总投入</span><span class="val">¥${round(s.actualTotalCost || (s.boxPrice * s.totalBoxes))}</span></div>
+    ${s.actualTotalCost ? `<div class="detail-row"><span style="color:var(--text3);font-size:12px;">（计算价：${s.totalBoxes}×${round(s.boxPrice)}=¥${round(s.boxPrice * s.totalBoxes)}，实付不同）</span></div>` : ''}
     ${s.remark ? `<div style="margin-top:8px;font-size:12px;color:var(--text3);">备注：${s.remark}</div>` : ''}
   `;
 
@@ -784,7 +876,7 @@ function showDetail(id) {
     bodyEl.innerHTML = '<div class="empty"><div class="empty-icon">💰</div><p>该系列暂无卖出记录</p></div>';
   } else {
     const totalSold = seriesSales.reduce((sum, sa) => sum + (parseFloat(sa.soldPrice) || 0), 0);
-    const totalCost = seriesSales.length * s.boxPrice;
+    const totalCost = s.actualTotalCost ? s.actualTotalCost : (s.boxPrice * s.totalBoxes);
     const profit = totalSold - totalCost;
     bodyEl.innerHTML = `
       <div class="section-title">卖出记录 <span class="sub">共 ${seriesSales.length} 笔</span></div>
@@ -818,11 +910,42 @@ function editCurrentSeries() {
   if (!s) return;
   document.getElementById('edit-name').value = s.name;
   document.getElementById('edit-boxPrice').value = s.boxPrice;
+  document.getElementById('edit-totalCost').value = s.actualTotalCost || '';
   document.getElementById('edit-legendary').value = s.tiers.legendary;
   document.getElementById('edit-hidden').value = s.tiers.hidden;
   document.getElementById('edit-rare').value = s.tiers.rare;
   document.getElementById('edit-normal').value = s.tiers.normal;
+  // 图片
+  const preview = document.getElementById('edit-image-preview');
+  if (s.image) {
+    preview.src = s.image;
+    preview.style.display = 'block';
+    document.getElementById('edit-image-clear').style.display = 'inline-block';
+  } else {
+    preview.style.display = 'none';
+    document.getElementById('edit-image-clear').style.display = 'none';
+  }
+  document.getElementById('edit-image').value = '';
   openModal('modal-edit');
+}
+
+function previewEditImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = document.getElementById('edit-image-preview');
+    img.src = ev.target.result;
+    img.style.display = 'block';
+    document.getElementById('edit-image-clear').style.display = 'inline-block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearEditImage() {
+  document.getElementById('edit-image').value = '';
+  document.getElementById('edit-image-preview').style.display = 'none';
+  document.getElementById('edit-image-clear').style.display = 'none';
 }
 
 function saveEdit() {
@@ -832,6 +955,11 @@ function saveEdit() {
   if (!name) { toast('请输入系列名称'); return; }
   s.name = name;
   s.boxPrice = parseFloat(document.getElementById('edit-boxPrice').value) || s.boxPrice;
+  const tc = document.getElementById('edit-totalCost').value;
+  s.actualTotalCost = tc ? parseFloat(tc) : null;
+  // 图片
+  const editPreview = document.getElementById('edit-image-preview');
+  s.image = (editPreview.style.display !== 'none' && editPreview.src) ? editPreview.src : null;
   s.tiers.legendary = parseInt(document.getElementById('edit-legendary').value) || 0;
   s.tiers.hidden = parseInt(document.getElementById('edit-hidden').value) || 0;
   s.tiers.rare = parseInt(document.getElementById('edit-rare').value) || 0;
@@ -1009,7 +1137,7 @@ function saveSale(e) {
 function renderFlow() {
   const month = document.getElementById('flow-month').value;
   const items = [
-    ...state.series.map(s => ({ type:'expense', name: s.name, amount: s.boxPrice * s.totalBoxes, date: s.createdAt, tier: null, id: s.id })),
+    ...state.series.map(s => ({ type:'expense', name: s.name, amount: s.actualTotalCost || (s.boxPrice * s.totalBoxes), date: s.createdAt, tier: null, id: s.id })),
     ...state.sales.map(s => ({ type:'income', name: s.seriesName || state.series.find(x => x.id === s.seriesId)?.name || '?', amount: parseFloat(s.soldPrice) || 0, date: s.soldAt, tier: s.tier, id: s.id }))
   ].filter(item => !month || item.date.startsWith(month))
    .sort((a, b) => new Date(b.date) - new Date(a.date));
